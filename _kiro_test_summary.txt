@@ -1,0 +1,741 @@
+test_account_security_login_passthrough.py: ======================== 1 passed, 5 warnings in 1.06s =========================
+test_account_security_migration.py: ======================== 4 skipped, 5 warnings in 0.26s ========================
+test_activity_report.py: =================== 10 passed, 5 warnings, 1 error in 10.25s ===================
+----- FAILURES in tests/test_activity_report.py -----
+==================================== ERRORS ====================================
+__________ ERROR at setup of test_activity_report_requires_admin_role __________
+2026-09-28 18:45:29 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:45:29 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+ERROR tests/test_activity_report.py::test_activity_report_requires_admin_role
+test_announcement_endpoint.py: ======================== 8 passed, 5 warnings in 17.95s ========================
+test_audit_log.py: =================== 3 failed, 9 passed, 5 warnings in 11.34s ===================
+----- FAILURES in tests/test_audit_log.py -----
+2026-09-28 18:46:06 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:46:06 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:46:08 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:46:08 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:46:09 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:46:09 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_audit_log.py::test_get_audit_log_non_admin_forbidden - Asse...
+FAILED tests/test_audit_log.py::test_get_audit_log_max_page_size - assert 400...
+FAILED tests/test_audit_log.py::test_get_audit_log_invalid_page - assert 400 ...
+test_audit_log_model.py: ======================== 11 passed, 5 warnings in 4.14s ========================
+test_auth_integration.py: =================== 1 failed, 2 passed, 5 warnings in 4.03s ====================
+----- FAILURES in tests/test_auth_integration.py -----
+2026-09-28 18:46:19 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:46:19 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_auth_integration.py::test_cannot_login_before_email_verification
+test_change_password_audit.py: ======================== 2 passed, 5 warnings in 3.14s =========================
+HANG(timeout 120s): tests/test_change_password_property.py
+test_compose_pgvector.py: ======================== 9 passed, 5 warnings in 0.18s =========================
+test_document_category_migration_property.py: ======================== 1 passed, 5 warnings in 4.36s =========================
+test_document_classify_extension_property.py: ======================== 2 passed, 5 warnings in 1.00s =========================
+test_document_deletion.py: =================== 4 failed, 4 passed, 5 warnings in 4.76s ====================
+----- FAILURES in tests/test_document_deletion.py -----
+2026-09-28 18:48:40 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:40 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:40 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:40 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:42 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:42 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:43 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:43 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_document_deletion.py::test_delete_document_not_found - Asse...
+FAILED tests/test_document_deletion.py::test_delete_document_non_admin_forbidden
+FAILED tests/test_document_deletion.py::test_delete_document_multiple_documents
+FAILED tests/test_document_deletion.py::test_delete_document_invalid_uuid - a...
+test_document_download.py: ================== 8 failed, 12 passed, 5 warnings in 12.88s ===================
+----- FAILURES in tests/test_document_download.py -----
+2026-09-28 18:48:48 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:48 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:50 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:50 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:51 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:51 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:52 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:52 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:54 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:54 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:55 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:55 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:55 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:55 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:48:55 - app.documents.router - ERROR - File not found in storage: nonexistent_file.pdf
+ERROR    app.documents.router:router.py:373 File not found in storage: nonexistent_file.pdf
+2026-09-28 18:48:57 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:48:57 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_document_download.py::test_download_members_document_unauthenticated_denied
+FAILED tests/test_document_download.py::test_download_admin_document_unauthenticated_denied
+FAILED tests/test_document_download.py::test_download_admin_document_member_denied
+FAILED tests/test_document_download.py::test_download_admin_document_visitor_denied
+FAILED tests/test_document_download.py::test_download_nonexistent_document - ...
+FAILED tests/test_document_download.py::test_download_invalid_document_id - a...
+FAILED tests/test_document_download.py::test_download_document_file_not_found
+FAILED tests/test_document_download.py::test_download_different_mime_types - ...
+test_document_download_audit.py: ======================== 7 passed, 5 warnings in 4.46s =========================
+test_document_listing.py: ======================== 14 passed, 5 warnings in 7.05s ========================
+test_document_model.py: ======================== 7 passed, 5 warnings in 3.94s =========================
+test_document_seed_access_control.py: ======================== 4 passed, 5 warnings in 11.75s ========================
+test_document_seed_orchestrator.py: ======================== 13 passed, 5 warnings in 9.76s ========================
+test_document_seed_service.py: =================== 3 failed, 4 passed, 5 warnings in 11.32s ===================
+----- FAILURES in tests/test_document_seed_service.py -----
+FAILED tests/test_document_seed_service.py::test_property_category_matches_precedence_and_is_deterministic
+FAILED tests/test_document_seed_service.py::test_property_keyword_presence_drives_category
+FAILED tests/test_document_seed_service.py::test_category_precedence_examples
+test_document_upload.py: ======================== 11 passed, 5 warnings in 4.99s ========================
+test_document_upload_categories_property.py: ======================== 4 passed, 5 warnings in 5.67s =========================
+test_email.py:   /home/slepetre/.local/lib/python3.12/site-packages/pydantic/_internal/_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+test_email_2fa_enable.py: ======================== 1 passed, 5 warnings in 0.61s =========================
+test_email_verification.py: =================== 8 failed, 3 passed, 5 warnings in 5.82s ====================
+----- FAILURES in tests/test_email_verification.py -----
+2026-09-28 18:50:16 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:16 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:16 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:16 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:17 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:17 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:17 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:17 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:18 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:18 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:18 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:18 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:19 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:19 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:19 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:19 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_email_verification.py::test_verify_email_invalid_token - Ke...
+FAILED tests/test_email_verification.py::test_verify_email_expired_token - Ke...
+FAILED tests/test_email_verification.py::test_verify_email_wrong_token_type
+FAILED tests/test_email_verification.py::test_verify_email_already_verified
+FAILED tests/test_email_verification.py::test_verify_email_nonexistent_user
+FAILED tests/test_email_verification.py::test_verify_email_missing_token - as...
+FAILED tests/test_email_verification.py::test_verify_email_empty_token - asse...
+FAILED tests/test_email_verification.py::test_verify_email_token_missing_user_id
+test_event_assignment.py: =================== 2 failed, 4 passed, 5 warnings in 6.75s ====================
+----- FAILURES in tests/test_event_assignment.py -----
+2026-09-28 18:50:23 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:23 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:23 - app.services.email_service - ERROR - Failed to send email to alice@example.com: [Errno 111] Connection refused
+2026-09-28 18:50:23 - app.services.email_service - ERROR - Failed to send email to bob@example.com: [Errno 111] Connection refused
+ERROR    app.services.email_service:email_service.py:96 Failed to send email to alice@example.com: [Errno 111] Connection refused
+ERROR    app.services.email_service:email_service.py:96 Failed to send email to bob@example.com: [Errno 111] Connection refused
+2026-09-28 18:50:24 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:24 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_event_assignment.py::test_create_event_with_multiple_assignees
+FAILED tests/test_event_assignment.py::test_create_event_rejects_unknown_assignee
+test_event_cancellation.py: =================== 4 failed, 3 passed, 5 warnings in 6.10s ====================
+----- FAILURES in tests/test_event_cancellation.py -----
+2026-09-28 18:50:32 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:32 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:33 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:33 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:34 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:34 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:34 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:34 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_event_cancellation.py::test_cancel_event_not_admin - Assert...
+FAILED tests/test_event_cancellation.py::test_cancel_event_not_found - Assert...
+FAILED tests/test_event_cancellation.py::test_cancel_event_already_cancelled
+FAILED tests/test_event_cancellation.py::test_cancel_event_invalid_id - Asser...
+test_event_creation.py: =================== 7 failed, 6 passed, 5 warnings in 9.21s ====================
+----- FAILURES in tests/test_event_creation.py -----
+2026-09-28 18:50:41 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:41 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:42 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:42 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:43 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:43 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:43 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:43 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:45 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:45 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:46 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:46 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:50:46 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:50:46 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_event_creation.py::test_create_event_non_admin_forbidden - ...
+FAILED tests/test_event_creation.py::test_create_event_invalid_dates - assert...
+FAILED tests/test_event_creation.py::test_create_event_past_date - assert 400...
+FAILED tests/test_event_creation.py::test_create_event_missing_required_fields
+FAILED tests/test_event_creation.py::test_create_event_title_length_validation
+FAILED tests/test_event_creation.py::test_create_event_location_length_validation
+FAILED tests/test_event_creation.py::test_create_event_max_participants_validation
+test_event_creation_bug_condition.py: ======================== 2 passed, 5 warnings in 0.15s =========================
+test_event_creation_integration.py: ======================== 3 passed, 5 warnings in 1.93s =========================
+test_event_creation_preservation.py: ======================== 8 passed, 5 warnings in 4.09s =========================
+test_event_listing.py: ================== 1 failed, 13 passed, 5 warnings in 10.99s ===================
+----- FAILURES in tests/test_event_listing.py -----
+2026-09-28 18:51:05 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:05 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_event_listing.py::test_list_events_invalid_view_parameter
+test_event_models.py: ======================== 14 passed, 5 warnings in 5.69s ========================
+test_event_registration.py: =================== 8 failed, 6 passed, 5 warnings in 16.52s ===================
+----- FAILURES in tests/test_event_registration.py -----
+2026-09-28 18:51:20 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:20 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:21 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:21 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:22 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:22 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:23 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:23 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:27 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:27 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:29 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:29 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:30 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:30 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:32 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:32 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_event_registration.py::test_register_for_event_not_found - ...
+FAILED tests/test_event_registration.py::test_register_for_event_invalid_id
+FAILED tests/test_event_registration.py::test_register_for_event_already_registered
+FAILED tests/test_event_registration.py::test_register_for_event_max_participants_limit
+FAILED tests/test_event_registration.py::test_register_for_cancelled_event - ...
+FAILED tests/test_event_registration.py::test_unregister_from_event_not_found
+FAILED tests/test_event_registration.py::test_unregister_from_event_not_registered
+FAILED tests/test_event_registration.py::test_unregister_from_event_invalid_id
+test_event_reminder_service.py: =================== 2 passed, 5 warnings, 5 errors in 2.68s ====================
+----- FAILURES in tests/test_event_reminder_service.py -----
+==================================== ERRORS ====================================
+__________________ ERROR at setup of test_send_event_reminder __________________
+________________ ERROR at setup of test_process_event_reminders ________________
+___________ ERROR at setup of test_process_event_reminders_no_events ___________
+________ ERROR at setup of test_process_event_reminders_no_participants ________
+_________ ERROR at setup of test_process_event_reminders_email_failure _________
+ERROR tests/test_event_reminder_service.py::test_send_event_reminder
+ERROR tests/test_event_reminder_service.py::test_process_event_reminders
+ERROR tests/test_event_reminder_service.py::test_process_event_reminders_no_events
+ERROR tests/test_event_reminder_service.py::test_process_event_reminders_no_participants
+ERROR tests/test_event_reminder_service.py::test_process_event_reminders_email_failure
+test_exception_handlers.py: =================== 1 failed, 4 passed, 5 warnings in 0.22s ====================
+----- FAILURES in tests/test_exception_handlers.py -----
+2026-09-28 18:51:40 - OPCP - ERROR - Unexpected error during login: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    OPCP:router.py:397 Unexpected error during login: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+FAILED tests/test_exception_handlers.py::test_authentication_error_response
+test_forum_access_control.py: =================== 5 failed, 4 passed, 5 warnings in 5.13s ====================
+----- FAILURES in tests/test_forum_access_control.py -----
+2026-09-28 18:51:42 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:42 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:43 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:43 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:43 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:43 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:45 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:45 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:46 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:46 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_forum_access_control.py::test_forum_access_with_invalid_token
+FAILED tests/test_forum_access_control.py::test_forum_access_denied_for_unverified_user
+FAILED tests/test_forum_access_control.py::test_forum_access_denied_for_visitor_role
+FAILED tests/test_forum_access_control.py::test_create_topic_requires_verified_member
+FAILED tests/test_forum_access_control.py::test_create_post_requires_verified_member
+test_forum_models.py: ======================== 14 passed, 5 warnings in 6.35s ========================
+test_forum_moderation.py: =================== 3 failed, 8 passed, 5 warnings in 4.72s ====================
+----- FAILURES in tests/test_forum_moderation.py -----
+2026-09-28 18:51:56 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:56 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:57 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:57 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:51:57 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:51:57 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_forum_moderation.py::test_hide_post_non_admin_forbidden - K...
+FAILED tests/test_forum_moderation.py::test_hide_post_not_found - KeyError: '...
+FAILED tests/test_forum_moderation.py::test_hide_post_invalid_id - KeyError: ...
+test_forum_notification_integration.py: ======================== 3 failed, 5 warnings in 3.37s =========================
+----- FAILURES in tests/test_forum_notification_integration.py -----
+2026-09-28 18:52:02 - OPCP - ERROR - Unhandled exception: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    OPCP:error_handlers.py:156 Unhandled exception: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:03 - OPCP - ERROR - Unhandled exception: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    OPCP:error_handlers.py:156 Unhandled exception: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:05 - OPCP - ERROR - Unhandled exception: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    OPCP:error_handlers.py:156 Unhandled exception: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+FAILED tests/test_forum_notification_integration.py::test_forum_reply_sends_notification_to_topic_author
+FAILED tests/test_forum_notification_integration.py::test_forum_reply_does_not_notify_self
+FAILED tests/test_forum_notification_integration.py::test_forum_reply_respects_notification_preferences
+test_forum_post_endpoints.py: =================== 5 failed, 9 passed, 5 warnings in 5.92s ====================
+----- FAILURES in tests/test_forum_post_endpoints.py -----
+2026-09-28 18:52:07 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:07 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:52:08 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:08 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:52:08 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:08 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:52:08 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:08 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:52:09 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:09 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_forum_post_endpoints.py::test_create_post_empty_content - a...
+FAILED tests/test_forum_post_endpoints.py::test_create_post_missing_content
+FAILED tests/test_forum_post_endpoints.py::test_create_post_topic_not_found
+FAILED tests/test_forum_post_endpoints.py::test_create_post_invalid_topic_id
+FAILED tests/test_forum_post_endpoints.py::test_create_post_locked_topic - Ke...
+test_forum_topic_endpoints.py: =================== 5 failed, 8 passed, 5 warnings in 6.47s ====================
+----- FAILURES in tests/test_forum_topic_endpoints.py -----
+2026-09-28 18:52:15 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:15 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:52:16 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:16 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:52:16 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:16 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:52:19 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:19 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:52:19 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:19 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_forum_topic_endpoints.py::test_create_topic_empty_title - a...
+FAILED tests/test_forum_topic_endpoints.py::test_create_topic_missing_title
+FAILED tests/test_forum_topic_endpoints.py::test_create_topic_title_too_long
+FAILED tests/test_forum_topic_endpoints.py::test_get_topic_not_found - Assert...
+FAILED tests/test_forum_topic_endpoints.py::test_get_topic_invalid_id - Asser...
+test_health.py: ======================== 2 passed, 5 warnings in 0.93s =========================
+test_ical_export.py: ======================== 7 passed, 5 warnings in 2.88s =========================
+test_info_financial.py: ======================== 8 passed, 5 warnings in 13.54s ========================
+test_info_homepage.py: ======================== 6 passed, 5 warnings in 0.15s =========================
+test_info_legal.py: ======================== 8 passed, 5 warnings in 0.15s =========================
+test_ingest_changed_replacement_property.py: ======================== 1 passed, 5 warnings in 0.51s =========================
+test_ingest_discovery_property.py: ======================== 1 passed, 5 warnings in 0.98s =========================
+test_ingest_embedding_insert.py: ======================== 7 passed, 5 warnings in 0.15s =========================
+test_ingest_entrypoint_smoke.py: ======================== 3 passed, 5 warnings in 0.14s =========================
+test_ingest_orchestration.py: ======================== 11 passed, 5 warnings in 0.15s ========================
+test_ingest_pdf_extraction.py: ======================== 1 passed, 5 warnings in 0.20s =========================
+test_invoice_generation.py: ======================== 17 passed, 5 warnings in 0.21s ========================
+test_login.py: ================== 10 failed, 3 passed, 5 warnings in 10.93s ===================
+----- FAILURES in tests/test_login.py -----
+2026-09-28 18:52:59 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:52:59 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:00 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:00 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:00 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:00 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:01 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:01 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:05 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:05 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:06 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:06 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:06 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:06 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:06 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:06 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:08 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:08 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:08 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:08 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_login.py::test_login_invalid_password - AssertionError: ass...
+FAILED tests/test_login.py::test_login_nonexistent_email - KeyError: 'detail'
+FAILED tests/test_login.py::test_login_unverified_email - KeyError: 'detail'
+FAILED tests/test_login.py::test_login_rate_limiting - KeyError: 'detail'
+FAILED tests/test_login.py::test_login_missing_email - assert 400 == 422
+FAILED tests/test_login.py::test_login_missing_password - assert 400 == 422
+FAILED tests/test_login.py::test_login_invalid_email_format - assert 400 == 422
+FAILED tests/test_login.py::test_login_empty_password - assert 400 == 422
+FAILED tests/test_login.py::test_login_different_users_separate_rate_limits
+FAILED tests/test_login.py::test_login_audit_log_includes_timestamp - assert ...
+test_login_2fa_email_property.py: ======================== 1 passed, 5 warnings in 26.00s ========================
+test_logout.py: =================== 3 failed, 5 passed, 5 warnings in 5.50s ====================
+----- FAILURES in tests/test_logout.py -----
+2026-09-28 18:53:39 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:39 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:40 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:40 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:43 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:43 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_logout.py::test_logout_token_cannot_be_reused - KeyError: '...
+FAILED tests/test_logout.py::test_logout_with_invalid_token - KeyError: 'detail'
+FAILED tests/test_logout.py::test_logout_with_expired_token - KeyError: 'detail'
+test_member_management.py: ================== 4 failed, 11 passed, 5 warnings in 20.86s ===================
+----- FAILURES in tests/test_member_management.py -----
+2026-09-28 18:53:49 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:49 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:57 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:57 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:53:59 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:53:59 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:54:02 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:54:02 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_member_management.py::test_list_members_non_admin_forbidden
+FAILED tests/test_member_management.py::test_deactivate_member_prevents_login
+FAILED tests/test_member_management.py::test_deactivate_member_non_admin_forbidden
+FAILED tests/test_member_management.py::test_deactivate_member_not_found - As...
+test_membership_reminder_service.py: ======================== 12 passed, 5 warnings in 6.38s ========================
+test_notification_models.py: ======================= 15 passed, 6 warnings in 12.58s ========================
+test_notification_preferences.py: ======================== 8 passed, 5 warnings in 8.04s =========================
+test_notification_service.py: ======================= 16 passed, 5 warnings in 12.10s ========================
+test_opcp_companion_provider.py: ======================== 30 passed, 5 warnings in 6.10s ========================
+test_oracle_module.py:   /home/slepetre/.local/lib/python3.12/site-packages/pydantic/_internal/_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
+test_other_providers_unchanged.py: ======================== 5 passed, 5 warnings in 0.16s =========================
+test_password_hashing.py: ======================== 10 passed, 5 warnings in 3.90s ========================
+test_payment_initiation.py: ================== 11 failed, 5 passed, 5 warnings in 10.34s ===================
+----- FAILURES in tests/test_payment_initiation.py -----
+2026-09-28 18:55:10 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:10 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:11 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:11 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:11 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:12 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:12 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:12 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:13 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:13 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:14 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:14 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+    assert data["detail"]["code"] == "PAYMENT_INITIATION_FAILED"
+2026-09-28 18:55:15 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:15 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:15 - app.payments.router - ERROR - Error initiating payment: Stripe API error
+ERROR    app.payments.router:router.py:303 Error initiating payment: Stripe API error
+    assert data["detail"]["code"] == "PAYMENT_INITIATION_FAILED"
+2026-09-28 18:55:16 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:16 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:16 - app.payments.router - ERROR - Error initiating payment: PayPal API error
+ERROR    app.payments.router:router.py:303 Error initiating payment: PayPal API error
+2026-09-28 18:55:17 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:17 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:17 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:17 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:18 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:18 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_payment_invalid_amount
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_payment_zero_amount
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_payment_negative_amount
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_paypal_payment_missing_return_url
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_paypal_payment_missing_cancel_url
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_payment_invalid_currency_format
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_stripe_payment_service_failure
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_paypal_payment_service_failure
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_payment_missing_payment_method
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_payment_invalid_payment_method
+FAILED tests/test_payment_initiation.py::TestPaymentInitiation::test_initiate_payment_different_currencies
+test_payment_model.py: ======================== 9 passed, 5 warnings in 5.03s =========================
+test_payment_webhooks.py: =================== 4 failed, 13 passed, 6 warnings in 8.86s ===================
+----- FAILURES in tests/test_payment_webhooks.py -----
+2026-09-28 18:55:27 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:27 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:27 - app.payments.router - ERROR - Missing Stripe-Signature header
+ERROR    app.payments.router:router.py:353 Missing Stripe-Signature header
+2026-09-28 18:55:27 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:27 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:27 - app.payments.router - ERROR - Invalid Stripe webhook signature: Invalid signature
+ERROR    app.payments.router:router.py:448 Invalid Stripe webhook signature: Invalid signature
+    assert response.json()["detail"]["code"] == "WEBHOOK_PROCESSING_FAILED"
+2026-09-28 18:55:34 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:34 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:34 - app.payments.router - ERROR - Error processing Stripe webhook: 'amount'
+ERROR    app.payments.router:router.py:458 Error processing Stripe webhook: 'amount'
+    assert response.json()["detail"]["code"] == "WEBHOOK_PROCESSING_FAILED"
+2026-09-28 18:55:35 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:55:35 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:55:35 - app.payments.router - ERROR - Error processing PayPal webhook: Expecting value: line 1 column 1 (char 0)
+ERROR    app.payments.router:router.py:627 Error processing PayPal webhook: Expecting value: line 1 column 1 (char 0)
+FAILED tests/test_payment_webhooks.py::TestStripeWebhook::test_stripe_webhook_missing_signature
+FAILED tests/test_payment_webhooks.py::TestStripeWebhook::test_stripe_webhook_invalid_signature
+FAILED tests/test_payment_webhooks.py::TestWebhookEdgeCases::test_stripe_webhook_database_error
+FAILED tests/test_payment_webhooks.py::TestWebhookEdgeCases::test_paypal_webhook_invalid_json
+test_paypal_service.py: ======================== 21 passed, 5 warnings in 0.17s ========================
+test_pgvector_chunking_property.py: ======================== 1 passed, 5 warnings in 0.40s =========================
+test_pgvector_config_docs.py: ======================== 3 passed, 5 warnings in 0.15s =========================
+test_pgvector_idempotency_property.py: ======================== 1 passed, 5 warnings in 0.67s =========================
+test_pgvector_provisioning_property.py: ======================== 1 passed, 5 warnings in 0.15s =========================
+test_prerequisites_answers_authz.py: ======================== 10 passed, 5 warnings in 4.40s ========================
+test_prerequisites_answers_fix_check.py: ======================== 8 passed, 5 warnings in 4.44s =========================
+test_prerequisites_answers_preservation.py: ======================= 20 passed, 5 warnings in 11.29s ========================
+test_prerequisites_cross_member_isolation_property.py: ======================== 1 passed, 5 warnings in 6.55s =========================
+test_prerequisites_exploration.py: ======================== 7 passed, 5 warnings in 3.08s =========================
+test_prerequisites_integration.py: ======================== 6 passed, 5 warnings in 2.96s =========================
+test_prerequisites_migration.py: ======================== 4 skipped, 5 warnings in 0.28s ========================
+test_prerequisites_preservation.py: ======================= 23 passed, 5 warnings in 10.62s ========================
+test_prerequisites_property.py: ======================== 5 passed, 5 warnings in 6.62s =========================
+test_prerequisites_retrieval_isolation_property.py: ======================== 1 passed, 5 warnings in 2.93s =========================
+test_prerequisites_save_ownership_property.py: ======================== 1 passed, 5 warnings in 3.97s =========================
+test_prerequisites_static_shared_property.py: ======================== 1 passed, 5 warnings in 4.66s =========================
+test_prerequisites_unit.py: ======================= 34 passed, 5 warnings in 15.12s ========================
+test_prerequisites_upsert_idempotency_property.py: ======================== 1 passed, 5 warnings in 7.60s =========================
+test_rate_limiting.py: ======================== 5 passed, 5 warnings in 7.84s =========================
+test_registration.py: =================== 10 failed, 3 passed, 5 warnings in 6.03s ===================
+----- FAILURES in tests/test_registration.py -----
+E   AssertionError: assert 'detail' in {'error': {'code': 'HTTP_ERROR', 'details': {}, 'message': 'An account with this email address already exists', 'requestId': '62cd3168-afed-4c62-b140-33c46e37f06e', ...}}
+2026-09-28 18:57:39 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:39 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:39 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:39 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:40 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:40 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:40 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:40 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:40 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:40 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:41 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:41 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:41 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:41 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:41 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:41 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:42 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:42 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:44 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:44 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_registration.py::test_register_duplicate_email - AssertionE...
+FAILED tests/test_registration.py::test_register_password_too_short - assert ...
+FAILED tests/test_registration.py::test_register_password_no_uppercase - asse...
+FAILED tests/test_registration.py::test_register_password_no_lowercase - asse...
+FAILED tests/test_registration.py::test_register_password_no_number - assert ...
+FAILED tests/test_registration.py::test_register_invalid_email_format - asser...
+FAILED tests/test_registration.py::test_register_missing_required_fields - as...
+FAILED tests/test_registration.py::test_register_empty_first_name - assert 40...
+FAILED tests/test_registration.py::test_register_empty_last_name - assert 400...
+FAILED tests/test_registration.py::test_register_password_max_length - assert...
+test_role_management.py: =================== 3 failed, 6 passed, 5 warnings in 8.23s ====================
+----- FAILURES in tests/test_role_management.py -----
+2026-09-28 18:57:48 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:48 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:49 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:49 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+2026-09-28 18:57:50 - OPCP - ERROR - Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+2026-09-28 18:57:50 - app.services.document_seed_service - ERROR - Docs seeding aborted due to unexpected error.
+ERROR    OPCP:startup.py:41 Error creating default admin user: (psycopg2.OperationalError) could not translate host name "postgres" to address: Name or service not known
+ERROR    app.services.document_seed_service:document_seed_service.py:169 Docs seeding aborted due to unexpected error.
+FAILED tests/test_role_management.py::test_update_member_role_non_admin_forbidden
+FAILED tests/test_role_management.py::test_update_member_role_invalid_role - ...
+FAILED tests/test_role_management.py::test_update_member_role_member_not_found
+test_scheduler.py: =================== 3 failed, 7 passed, 5 warnings in 0.19s ====================
+----- FAILURES in tests/test_scheduler.py -----
+FAILED tests/test_scheduler.py::TestTaskScheduler::test_scheduler_start_adds_membership_reminder_job
+FAILED tests/test_scheduler.py::TestTaskScheduler::test_scheduler_job_runs_daily_at_9am
+FAILED tests/test_scheduler.py::TestTaskScheduler::test_scheduler_job_replaces_existing_job
+test_shai_prompt_assembly_property.py: ======================== 1 passed, 5 warnings in 0.40s =========================
+test_shai_prompt_degradation.py: ======================== 1 passed, 5 warnings in 0.30s =========================
+test_shai_query_integration.py: ======================== 4 passed, 5 warnings in 0.15s =========================
+test_shai_skill_context_loader.py: ======================== 7 passed, 5 warnings in 0.16s =========================
+test_storage_validate_file_property.py: ======================== 2 passed, 5 warnings in 0.82s =========================
+test_stripe_service.py: ======================== 16 passed, 5 warnings in 0.17s ========================
+test_token_service.py: ======================== 18 passed, 5 warnings in 3.26s ========================
+test_totp_confirmation_guard_property.py: ======================== 2 passed, 5 warnings in 5.61s =========================
+test_totp_login_enforcement_property.py: =================== 2 passed, 5 warnings in 78.97s (0:01:18) ===================
+test_totp_setup_response.py: ======================== 1 passed, 5 warnings in 0.56s =========================
+test_user_data_deletion.py: ======================== 7 passed, 5 warnings in 2.75s =========================
+test_user_data_export.py: ======================== 7 passed, 5 warnings in 3.36s =========================
+test_user_model.py: ======================== 6 passed, 5 warnings in 1.86s =========================
+
+==================== TOTALS ====================
+passed=702 failed=119 skipped=8 errored=6
+hang_files=tests/test_change_password_property.py
+fail_files=tests/test_activity_report.py tests/test_audit_log.py tests/test_auth_integration.py tests/test_document_deletion.py tests/test_document_download.py tests/test_document_seed_service.py tests/test_email_verification.py tests/test_event_assignment.py tests/test_event_cancellation.py tests/test_event_creation.py tests/test_event_listing.py tests/test_event_registration.py tests/test_event_reminder_service.py tests/test_exception_handlers.py tests/test_forum_access_control.py tests/test_forum_moderation.py tests/test_forum_notification_integration.py tests/test_forum_post_endpoints.py tests/test_forum_topic_endpoints.py tests/test_login.py tests/test_logout.py tests/test_member_management.py tests/test_payment_initiation.py tests/test_payment_webhooks.py tests/test_registration.py tests/test_role_management.py tests/test_scheduler.py

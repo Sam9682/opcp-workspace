@@ -1,0 +1,327 @@
+Date: Tue, 8 Sep 2026 07:18:32 +0000 (UTC) Message-ID: [2072886438.762.1788851912543@confluence-app2-prod-rbx.ovh.tools](mailto:2072886438.762.1788851912543@confluence-app2-prod-rbx.ovh.tools) Subject: Exported From Confluence MIME-Version: 1.0 Content-Type: multipart/related; boundary="----=\_Part\_761\_263734953.1788851912542"
+
+------=\_Part\_761\_263734953.1788851912542 Content-Type: text/html; charset=UTF-8 Content-Transfer-Encoding: quoted-printable Content-Location: file:///C:/exported.html
+
+\<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8= "\> 
+
+```
+    table \{  
+        border: solid 1px;  
+        border-collapse: collapse;  
+    \}  
+  
+    table td, table th \{  
+        border: solid 1px;  
+        padding: 5px;  
+    \}  
+  
+    td \{  
+        page-break-inside: avoid;  
+    \}  
+  
+    tr \{  
+        page-break-after: avoid;  
+    \}  
+  
+    div.Section1 \{  
+        page: Section1;  
+    \}  
+  
+    /\* Confluence print stylesheet. Common to all themes for print medi=
+```
+
+a */* */* Full of !important until we improve batching for print CSS \*/
+
+@media print \{ \#main \{ padding-bottom: 1em !important; /\* The default padding of 6em is to= o much for printouts \*/ \}
+
+```
+body \{  
+    font-family: Arial, Helvetica, FreeSans, sans-serif;  
+    font-size: 10pt;  
+    line-height: 1.2;  
+\}  
+  
+body, \#full-height-container, \#main, \#page, \#content, .has-personal-sid=
+```
+
+ebar \#content \{ background: var(--ds-surface, \#fff) !important; color: var(--ds-text, \#000) !important; border: 0 !important; width: 100% !important; height: auto !important; min-height: auto !important; margin: 0 !important; padding: 0 !important; display: block !important; \}
+
+```
+a, a:link, a:visited, a:focus, a:hover, a:active \{  
+    color: var(--ds-link-pressed, \#000);  
+\}  
+  
+\#content h1,  
+\#content h2,  
+\#content h3,  
+\#content h4,  
+\#content h5,  
+\#content h6 \{  
+    font-family: Arial, Helvetica, FreeSans, sans-serif;  
+    page-break-after: avoid;  
+\}  
+  
+pre \{  
+    font-family: Monaco, "Courier New", monospace;  
+\}  
+  
+\#header,  
+.aui-header-inner,  
+\#navigation,  
+\#sidebar,  
+.sidebar,  
+\#personal-info-sidebar,  
+.ia-fixed-sidebar,  
+.page-actions,  
+.navmenu,  
+.ajs-menu-bar,  
+.noprint,  
+.inline-control-link,  
+.inline-control-link a,  
+a.show-labels-editor,  
+.global-comment-actions,  
+.comment-actions,  
+.quick-comment-container,  
+\#addcomment \{  
+    display: none !important;  
+\}  
+  
+/\* CONF-28544 cannot print multiple pages in IE \*/  
+\#splitter-content \{  
+    position: relative !important;  
+\}  
+  
+.comment .date::before \{  
+    content: none !important; /\* remove middot for print view \*/  
+\}  
+  
+h1.pagetitle img \{  
+    height: auto;  
+    width: auto;  
+\}  
+  
+.print-only \{  
+    display: block;  
+\}  
+  
+\#footer \{  
+    position: relative !important; /\* CONF-17506 Place the footer at en=
+```
+
+d of the content \*/ margin: 0; padding: 0; background: none; clear: both; \}
+
+```
+\#poweredby \{  
+    border-top: none;  
+    background: none;  
+\}  
+  
+\#poweredby li.print-only \{  
+    display: list-item;  
+    font-style: italic;  
+\}  
+  
+\#poweredby li.noprint \{  
+    display: none;  
+\}  
+  
+/\* no width controls in print \*/  
+.wiki-content .table-wrap,  
+.wiki-content p,  
+.panel .codeContent,  
+.panel .codeContent pre,  
+.image-wrap \{  
+    overflow: visible !important;  
+\}  
+  
+/\* TODO - should this work? \*/  
+\#children-section,  
+\#comments-section .comment,  
+\#comments-section .comment .comment-body,  
+\#comments-section .comment .comment-content,  
+\#comments-section .comment p \{  
+    page-break-inside: avoid;  
+\}  
+  
+\#page-children a \{  
+    text-decoration: none;  
+\}  
+  
+/\*\*  
+ hide twixies  
+  
+ the specificity here is a hack because print styles  
+ are getting loaded before the base styles. \*/  
+\#comments-section.pageSection .section-header,  
+\#comments-section.pageSection .section-title,  
+\#children-section.pageSection .section-header,  
+\#children-section.pageSection .section-title,  
+.children-show-hide \{  
+    padding-left: 0;  
+    margin-left: 0;  
+\}  
+  
+.children-show-hide.icon \{  
+    display: none;  
+\}  
+  
+/\* personal sidebar \*/  
+.has-personal-sidebar \#content \{  
+    margin-right: 0;  
+\}  
+  
+.has-personal-sidebar \#content .pageSection \{  
+    margin-right: 0;  
+\}  
+  
+.no-print, .no-print \* \{  
+    display: none !important;  
+\}
+```
+
+\} --\> 
+
+# MDC - Installation Tracking
+
+# Installation Tracking =E2=80=93 Marocco DC
+
+> **Project:** MDC  
+**Deployment Type:** Stan= dalone   
+**Installation Date (planned):** September 202= 6, not fixed yet  
+**Lead Engineer:** \[Name\]  
+**Last = Updated:** 2026-08-24
+
+Use this sheet to track the collection of the items defined in 00 CloudStore r= equirements (and 01 Cloud apps requirements for cloud apps).
+
+**Audience** =E2=80=94 Professional Services and the Clou= dStore Platform squad (PU.Cloud Store team).
+
+
+
+## Status Legend
+
+| **Status** | **Meaning** |
+| :-: | :-: |
+| ✅  Received | Information or action confirmed and complete=  |
+| =E2=8F=B3 Pending | Requested but not yet received |
+| =E2=9D=8C Blocked | Issue preventing progress |
+| N/A | Not applicable for this deployment |
+
+
+## 1. CloudStore
+
+### 1.1 Network Conf= iguration
+
+| **Parameter** | **Value** | **Status** | **Date Received** | **Comments** |
+| :-: | :-: | :-: | :-: | :-: |
+| Network Name | CLOUDSTORE | ✅ | 24/08/2026 |  |
+| Subnet Name |  | N/A |  |  |
+| Subnet CIDR | 99.99.1.0/24 | ✅ | 24/08/2026 |  |
+| Gateway IP | 99.99.1.254 | ✅ | 24/08/2026 |  |
+| VLAN ID | 800 | ✅ | 24/08/2026 |  |
+| DHCP range confirmed (10 IPs excluded) | 99.99.1.15-99.99.1.253 | ✅ | 24/08/2026 |  |
+
+### 1.2 Server Informat= ion
+
+#### Standalone Deployme= nt
+
+| **Role** | **Hostname** | **IP Address** | **Node UUID** | **Status** | **Date Received** | **Comments** |
+| :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| Node | **cs01.opcp01-demo.mdc.ma**  |  |  | ✅ | 01 Sep 2026  |  |
+
+#### In= gress VIP (customer) =E2=80=94 required
+
+| **Parameter** | **Value** | **Status** | **Date Received** | **Comments** |
+| :-: | :-: | :-: | :-: | :-: |
+| Ingress VIP (Cilium L2, static, outside DHCP= , distinct from node IP & gateway) |  | =E2=8F=B3 |  |  |
+
+
+| ***Role*** | ***Hostname*** | ***IP Address*** | ***Node UUID*** | ***Status*** | ***Date Received*** | ***Comments*** |
+| :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| *Node 1* |  |  |  | *N/A* |  |  |
+| *Node 2* |  |  |  | *N/A* |  |  |
+| *Node 3* |  |  |  | *N/A* |  |  |
+| *Cluster-e= ndpoint VIP* |  | *N/A*\<= /span\> | *N/A*\<= /span\> | *N/A* |  |  |
+
+### 1.3 DNS Configuratio= n
+
+| **Parameter** | **Value** | **Status** | **Date Received** | **Comments** |
+| :-: | :-: | :-: | :-: | :-: |
+| DNS Zone Name |  |  |  |  |
+| Delegation Target (customer ingress VIP)  |  |  |  |  |
+| Primary DNS Server IP | **172.1= 8.1.21** | ✅ | 01 Sep 2026  |  |
+| Fallback DNS Server IP | **172.1= 8.1.22** | ✅ | 01 Sep 2026  |  |
+
+### 1.4 NTP Configuratio= n
+
+| **Parameter** | **Value** | **Status** | **Date Received** | **Comments** |
+| :-: | :-: | :-: | :-: | :-: |
+| NTP Server 1 - IP | **172.2= 7.123.123** | ⏳  | 01 Sep 2026  |  |
+| NTP Server 1 - DNS Name |  | N/A |  |  |
+| NTP Server 2 -  IP |  | N/A |  |  |
+| NTP Server 2 - DNS Name |  | N/A |  |  |
+
+### 1.5 Securit= y & Certificates
+
+| **Parameter** | **Value** | **Status** | **Date Received** | **Comments** |
+| :-: | :-: | :-: | :-: | :-: |
+| Root CA Certificate |  | ⏳  |  |  |
+
+### 1.6 Backup storage = (S3)
+
+| **Parameter** | **Value** | **Status** | **Date Received** | **Comments** |
+| :-: | :-: | :-: | :-: | :-: |
+| Backup enabled? |  | N/A |  |  |
+| S3 endpoint URL |  | N/A |  |  |
+| S3 region |  | N/A |  |  |
+| S3 bucket |  | N/A |  |  |
+| S3 access key (=E2=86=92 secret) |  | N/A |  |  |
+| S3 secret key (=E2=86=92 secret) |  | N/A |  |  |
+| Backup path (default cs-backups) |  | N/A |  |  |
+
+### 1.7 Client-Side Ac= tions
+
+| **Action** | **Status** | **Date Confirmed** | **Comments** |
+| :-: | :-: | :-: | :-: |
+| Network/Subnet created | ✅ | 24/08/2026 |  |
+| Networks wired to the OPCP rack edge (coordi= nated by PS with the Sov.Network squad, PU.OPCP Core) | ✅ | 24/08/2026 |  |
+| Bastion host provisioned | ✅ | 24/08/2026 |  |
+| Bastion access provided to our team | ✅ | 24/08/2026 |  |
+| DNS zone delegation configured | ⏳  |  |  |
+| S3 backup bucket provided & reachable fr= om customer network | ⏳  |  |  |
+
+
+## 2. Cloud apps
+
+#### Cloud apps are optional and each one is owned by the team that package= s it (see 2.1 VCF *(own= er: PU.VMware)*
+
+Check the network prerequisites here: 01 VCF
+
+| **Parameter** | **Value** | **Status** | **Date Received** | **Comments** |
+| :-: | :-: | :-: | :-: | :-: |
+| VCF Management network uuid | 999-2ae5-47eb-bc87-eaa508c8d49c | ✅ | 24/08/2026 |  |
+| VCF Management network VLAN ID | 801 | ✅ | 24/08/2026 |  |
+| VCF Management domain VSAN network uuid | 999-2096-48d6-b087-a588cf1fda47 | ✅ | 24/08/2026 |  |
+| VCF Management domain VSAN network VLAN ID  | 804 | ✅ | 24/08/2026 |  |
+| VCF Management domain VMOTION network uuid  | 999-726f-4dfb-b106-53495c7a0dd9 | ✅ | 24/08/2026 |  |
+| VCF Management domain VMOTION network VLAN I= D | 803 | ✅ | 24/08/2026 |  |
+| VCF Management domain Overlay network uuid  | 999-6219-4985-9213-d90fc10dd9b3 | ✅ | 24/08/2026 |  |
+| VCF Management domain Overlay network VLAN I= D | 802 | ✅ | 24/08/2026 |  |
+
+#### VCF Deployment Va= riables
+
+Not required for the CloudStore deployment, but should be filled with th= e customer following this guideline: 60.1.2 Required parameters
+
+| **Variable** | **Value** | **Status** | **Date Received** | **Comments** |
+| :-: | :-: | :-: | :-: | :-: |
+|  |  | =E2=8F=B3 |  |  |
+
+
+## 3. Notes & Fol= low-up
+
+*Use this section to log any ongoing discussions, outstanding questio= ns, or decisions made during the pre-deployment phase.*
+
+| **Date** | **Author** | **Note** |
+| :-: | :-: | :-: |
+| 24/08/2026 | Slepetre | Filled in information for MDC. Under review by customer For your information, I have compiled a XLS file with most/all the = required information for CloudStore  |
+
+

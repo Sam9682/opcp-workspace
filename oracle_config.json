@@ -1,0 +1,110 @@
+{
+  "module": {
+    "name": "Oracle AI",
+    "version": "1.0.0",
+    "description": "Interface d'IA agentique réutilisable pour les applications opcp-psmc.com",
+    "author": "OPCP",
+    "license": "MIT"
+  },
+  "providers": {
+    "kiro": {
+      "name": "Kiro AI",
+      "type": "local",
+      "command": "kiro-cli",
+      "requires_api_key": false,
+      "default": true,
+      "description": "IA locale via kiro-cli (inclus dans le container Docker)"
+    },
+    "shai": {
+      "name": "Shai AI",
+      "type": "cloud",
+      "api_url": "https://api.ovh.com/shai/v1/chat",
+      "requires_api_key": true,
+      "env_var": "SHAI_API_KEY",
+      "description": "IA d'OVH Cloud"
+    },
+    "openai": {
+      "name": "OpenAI",
+      "type": "cloud",
+      "api_url": "https://api.openai.com/v1/chat/completions",
+      "requires_api_key": true,
+      "env_var": "OPENAI_API_KEY",
+      "model": "gpt-4",
+      "description": "GPT-4 d'OpenAI"
+    },
+    "opcp_companion": {
+      "name": "OPCP Companion",
+      "type": "cloud",
+      "rag": true,
+      "requires_api_key": true,
+      "env_var": "OVH_AI_TOKEN",
+      "description": "Assistant RAG basé sur la base documentaire OPCP (pgvector + OVH AI Endpoints)"
+    }
+  },
+  "rate_limits": {
+    "ask_oracle": {
+      "limit": 10,
+      "period": "minute"
+    },
+    "analyze_forum": {
+      "limit": 5,
+      "period": "hour"
+    }
+  },
+  "features": {
+    "chat_interface": true,
+    "history": true,
+    "forum_analysis": true,
+    "widget": true,
+    "api": true
+  },
+  "database": {
+    "table": "oracle_queries",
+    "migration": "add_oracle_queries_table.py"
+  },
+  "files": {
+    "backend": [
+      "app/oracle/__init__.py",
+      "app/oracle/router.py",
+      "app/oracle/service.py",
+      "app/oracle/schemas.py",
+      "app/oracle/ai_providers.py",
+      "app/oracle/README.md",
+      "app/models/oracle.py"
+    ],
+    "frontend": [
+      "frontend/src/pages/OraclePage.tsx",
+      "frontend/src/components/OracleWidget.tsx",
+      "frontend/src/services/oracleService.ts"
+    ],
+    "docs": [
+      "docs/ORACLE_AI_MODULE.md",
+      "docs/ORACLE_INTEGRATION_GUIDE.md",
+      "docs/ORACLE_QUICK_START.md"
+    ],
+    "scripts": [
+      "scripts/install_kiro_cli.sh",
+      "test_oracle_module.py"
+    ]
+  },
+  "integration": {
+    "backend_router": "from app.oracle.router import router as oracle_router",
+    "backend_include": "app.include_router(oracle_router)",
+    "frontend_route": "/oracle",
+    "menu_item": {
+      "icon": "🔮",
+      "label": "L'Oracle (AI)",
+      "path": "/oracle"
+    }
+  },
+  "customization": {
+    "analysis_types": [
+      "forum_summary",
+      "event_prediction",
+      "user_sentiment",
+      "custom"
+    ],
+    "extendable": true,
+    "reusable": true
+  }
+}

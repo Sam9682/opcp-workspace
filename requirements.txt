@@ -1,0 +1,53 @@
+# Core Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# Database
+sqlalchemy==2.0.36
+alembic==1.14.0
+psycopg2-binary==2.9.10
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+pyjwt==2.10.1
+passlib[bcrypt]==1.7.4
+bcrypt==5.0.0
+pyotp==2.9.0
+python-dotenv==1.0.1
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+hypothesis==6.122.4
+httpx==0.28.1
+
+# Utilities
+pydantic==2.10.6
+pydantic-settings==2.7.1
+email-validator==2.3.0
+
+# Payment Processing
+stripe==14.3.0
+paypalrestsdk==1.13.1
+
+# PDF Generation
+reportlab==4.2.5
+
+# Background Tasks
+apscheduler==3.10.4
+
+# iCal Export
+icalendar==6.1.0
+
+# Rate Limiting
+slowapi==0.1.9
+
+# AWS S3 for backups
+boto3==1.35.94
+
+# OPCP Companion (RAG) - OVH AI Endpoints via OpenAI client
+openai==1.55.3
+
+# PDF text extraction (RAG ingestion)
+pypdf==5.1.0

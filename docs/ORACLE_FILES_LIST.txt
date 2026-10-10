@@ -1,0 +1,51 @@
+📦 LISTE COMPLÈTE DES FICHIERS DU MODULE ORACLE AI
+==================================================
+
+BACKEND (Python/FastAPI)
+------------------------
+✅ app/oracle/__init__.py
+✅ app/oracle/router.py
+✅ app/oracle/service.py
+✅ app/oracle/schemas.py
+✅ app/oracle/ai_providers.py
+✅ app/oracle/README.md
+✅ app/models/oracle.py
+✅ alembic/versions/add_oracle_queries_table.py
+
+FRONTEND (React/TypeScript)
+---------------------------
+✅ frontend/src/pages/OraclePage.tsx
+✅ frontend/src/components/OracleWidget.tsx
+✅ frontend/src/services/oracleService.ts
+
+DOCUMENTATION
+-------------
+✅ docs/ORACLE_AI_MODULE.md
+✅ docs/ORACLE_INTEGRATION_GUIDE.md
+✅ docs/ORACLE_QUICK_START.md
+✅ docs/ORACLE_INTERNAL_USAGE.md
+✅ README_ORACLE.md
+✅ ORACLE_MODULE_SUMMARY.md
+✅ ORACLE_IMPLEMENTATION_COMPLETE.md
+
+CONFIGURATION
+-------------
+✅ oracle_config.json
+✅ .env.example (mis à jour)
+
+SCRIPTS
+-------
+✅ scripts/install_kiro_cli.sh
+✅ test_oracle_module.py
+✅ INSTALLATION_ORACLE.sh
+✅ ORACLE_FILES_LIST.txt (ce fichier)
+
+MODIFICATIONS
+-------------
+✅ app/main.py (ajout du router Oracle)
+✅ app/models/__init__.py (import du modèle Oracle)
+✅ frontend/src/App.tsx (ajout de la route /oracle)
+✅ frontend/src/components/Layout.tsx (ajout du menu Oracle)
+✅ frontend/src/pages/HomePage.tsx (ajout du widget Oracle)
+
+TOTAL: 28 fichiers créés ou modifiés

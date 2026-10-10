@@ -1,0 +1,132 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: ai-shai-web-interface-postgres-${USER_ID:-1}-5432
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: shai_db
+      POSTGRES_USER: shai_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shai_password}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${HTTPS_PORT2:-6002}:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shai_user -d shai_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shai-network
+
+  # SHAI Web Interface Application (Backend API)
+  backend-component:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-shai-web-interface-app-${USER_ID:-1}-${HTTP_PORT2:-5000}
+    ports:
+      - "${HTTP_PORT2:-6000}:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://shai_user:${POSTGRES_PASSWORD:-shai_password}@postgres:5432/shai_db
+      - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
+      - DOMAIN=${DOMAIN:-localhost}
+      - API_URL=${API_URL:-http://ai-shai-web-interface:8000}
+      - SSL_EMAIL=${SSL_EMAIL:-admin@example.com}
+    volumes:
+      - app_data:/app/storage
+      - ./ssl:/app/ssl:ro
+      # Shai business context + reference docs mounted so they can be updated
+      # without rebuilding the image (read as relative paths from WORKDIR /app).
+      - ./conf/shai_context.md:/app/conf/shai_context.md:ro
+      - ./docs/opcp_external_docs:/app/docs/opcp_external_docs:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://ai-shai-web-interface:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - shai-network
+
+  # One-off RAG document ingestion (run on demand via the "ingest" profile)
+  ingest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles: ["ingest"]
+    env_file:
+      - .env
+    environment:
+      - PG_HOST=postgres
+      - PG_DB=shai_db
+      - PG_USER=shai_user
+      - PG_PASSWORD=${POSTGRES_PASSWORD:-shai_password}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["python", "-m", "scripts.ingest_embeddings"]
+    networks:
+      - shai-network
+
+  # Frontend Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ai-shai-web-interface-frontend-${USER_ID:-1}-${HTTP_PORT:-5000}
+    ports:
+      - "${HTTP_PORT:-6003}:8001"
+    environment:
+      - VITE_API_URL=/api
+    restart: unless-stopped
+    networks:
+      - shai-network
+
+  # Nginx Reverse Proxy
+  backend-component:
+    image: nginx:alpine
+    container_name: ai-shai-web-interface-backend-component-${USER_ID:-1}-${HTTPS_PORT:-5000}
+    ports:
+      - "${HTTPS_PORT:-6001}:443"
+    volumes:
+      - ./conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend-component
+      - frontend
+    restart: unless-stopped
+    environment:
+      - HTTP_PORT=${HTTP_PORT:-6000}
+      - HTTPS_PORT=${HTTPS_PORT:-6001}
+    networks:
+      - shai-network
+
+volumes:
+  postgres_data:
+  app_data:
+
+# The compose-internal alias "shai-network" is mapped to a Docker network whose
+# real name is unique per deployment (keyed on USER_ID). This isolation is
+# critical: multiple deployments run on the same host, and a shared fixed
+# network name made the Docker embedded DNS resolve service names like
+# "frontend"/"ai-shai-web-interface" to containers belonging to OTHER
+# deployments. That caused nginx to round-robin onto a stale frontend whose
+# hashed assets (e.g. index-<hash>.js) did not exist, returning the SPA
+# index.html (text/html) for a JS request and producing the browser error:
+# "Loading module ... was blocked because of a disallowed MIME type (text/html)".
+# A per-deployment network name scopes DNS to this deployment only.
+networks:
+  shai-network:
+    driver: bridge
+    name: shai-network-${USER_ID:-1}

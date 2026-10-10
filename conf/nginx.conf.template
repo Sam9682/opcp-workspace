@@ -1,0 +1,83 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream frontend {
+        server frontend:8001;
+    }
+
+    upstream backend {
+        server ai-shai-web-interface:8000;
+    }
+
+    # Map to handle CORS headers properly
+    map $request_method $cors_method {
+        OPTIONS 11;
+        default 0;
+    }
+
+    server {
+        listen 443 ssl;
+        listen 80;
+        server_name ai-shai-web-interface.fr www.ai-shai-web-interface.fr;
+
+        ssl_certificate /etc/nginx/ssl/fullchain.pem;
+        ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        client_max_body_size 100M;
+
+        # Proxy API requests to backend
+        location /api/ {
+            add_header Access-Control-Allow-Origin https://ai-shai-web-interface.fr always;
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+            add_header Access-Control-Allow-Headers "Authorization, Content-Type" always;
+            add_header Access-Control-Allow-Credentials true always;
+            # Handle preflight OPTIONS requests
+            if ($request_method = OPTIONS) {
+                add_header Access-Control-Allow-Origin https://ai-shai-web-interface.fr always;
+                add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+                add_header Access-Control-Allow-Headers "Authorization, Content-Type" always;
+                add_header Access-Control-Allow-Credentials true always;
+                return 204;
+            }
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /docs {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+ 
+        location /openapi.json {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /health {
+            proxy_pass http://backend/health;
+            access_log off;
+        }
+
+        # Proxy all other requests to frontend
+        location / {
+            proxy_pass http://frontend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}
