@@ -136,31 +136,52 @@ fi
 # Check prerequisites
 check_prerequisites() {
     log_info "Checking prerequisites..."
-    
+
     if ! command -v docker &> /dev/null; then
         log_error "Docker is not installed. Please install Docker first."
         exit 1
     fi
-    
+
     if ! command -v docker-compose &> /dev/null; then
         log_error "Docker Compose is not installed. Please install Docker Compose first."
         exit 1
     fi
-    
+
     log_info "Prerequisites check passed ✅"
+}
+
+# Ensure the docker-compose .env file exists.
+# docker-compose references ".env" via env_file; if it is missing the
+# deployment fails with: "env file .../.env not found". Seed it from
+# .env.example when available so the stack can start.
+ensure_env_file() {
+    if [[ -f ".env" ]]; then
+        log_info "Environment file .env already exists ✅"
+        return 0
+    fi
+
+    if [[ -f ".env.example" ]]; then
+        log_info ".env not found, creating it from .env.example..."
+        cp ".env.example" ".env"
+        chmod 600 ".env"
+        log_info ".env created from .env.example ✅"
+    else
+        log_error ".env not found and .env.example is missing; cannot create .env"
+        return 1
+    fi
 }
 
 # Generate secure passwords
 generate_secrets() {
     log_info "Generating secure secrets..."
-    
+
     if [[ ! -f "$ENV_FILE" ]]; then
         log_info "Creating production environment file..."
-        
+
         # Generate secure passwords
         DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
         JWT_SECRET=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
-        
+
         cat > "$ENV_FILE" << EOF
 # Database Configuration (PostgreSQL)
 POSTGRES_USER=${NAME_OF_APPLICATION}
@@ -179,7 +200,7 @@ SSL_EMAIL=$EMAIL
 # Frontend
 REACT_APP_API_URL=https://$DOMAIN
 EOF
-        
+
         chmod 600 "$ENV_FILE"
         log_info "Environment file created with secure passwords ✅"
     else
@@ -202,7 +223,7 @@ generate_nginx_config() {
 # Setup SSL certificates
 setup_ssl() {
     log_info "Setting up SSL certificates..."
-    
+
     if [[ ! -d "ssl" ]]; then
         mkdir -p ssl
     fi
@@ -213,42 +234,42 @@ setup_ssl() {
     # Check for existing certificates in ~/.ssh/ or current ssl/ directory
     elif [[ -f "$HOME/.ssh/fullchain_domain.crt" && -f "$HOME/.ssh/privateKey_domain.key" ]]; then
         log_info "Using existing certificates from ~/.ssh/..."
-        
+
         # Remove any existing directories with same names
         rm -rf ssl/fullchain.pem ssl/privkey.pem
-        
+
         # Copy existing certificates
         cp "$HOME/.ssh/fullchain_domain.crt" ssl/fullchain.pem
         cp "$HOME/.ssh/privateKey_domain.key" ssl/privkey.pem
-        
+
         # Set proper permissions
         chmod 644 ssl/fullchain.pem
         chmod 600 ssl/privkey.pem
-        
+
         log_info "Existing certificates copied ✅"
     # Check for certificates in current ssl directory
     elif [[ -f "ssl/fullchain_domain.crt" && -f "ssl/privateKey_domain.key" ]]; then
         log_info "Using existing certificates from ssl/ directory..."
-        
+
         # Remove any existing directories with same names
         rm -rf ssl/fullchain.pem ssl/privkey.pem
-        
+
         # Copy existing certificates
         cp ssl/fullchain_domain.crt ssl/fullchain.pem
         cp ssl/privateKey_domain.key ssl/privkey.pem
-        
+
         # Set proper permissions
         chmod 644 ssl/fullchain.pem
         chmod 600 ssl/privkey.pem
-        
+
         log_info "Local certificates copied ✅"
     # Check if certbot is installed
     elif command -v certbot &> /dev/null; then
         log_info "Obtaining SSL certificate for $DOMAIN..."
-        
+
         # Stop nginx if running
         sudo systemctl stop nginx 2>/dev/null || true
-        
+
         # Get certificate
         sudo certbot certonly --standalone \
             -d "$DOMAIN" \
@@ -256,25 +277,25 @@ setup_ssl() {
             --agree-tos \
             --non-interactive \
             --quiet
-        
+
         # Copy certificates from letsencrypt
         sudo cp "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ssl/
         sudo cp "/etc/letsencrypt/live/$DOMAIN/privkey.pem" ssl/
         sudo chown -R $USER:$USER ssl/
-        
+
         log_info "SSL certificates obtained ✅"
     else
         log_warn "Certbot not found. Creating self-signed certificates for testing..."
-        
+
         # Create self-signed certificate for testing
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
             -keyout ssl/privkey.pem \
             -out ssl/fullchain.pem \
             -subj "/C=US/ST=State/L=City/O=Organization/CN=$DOMAIN"
-        
+
         log_warn "Self-signed certificate created. Replace with real certificate for production!"
     fi
-    
+
     # Final verification that certificates are files
     if [[ -f "ssl/fullchain.pem" && -f "ssl/privkey.pem" ]]; then
         log_info "SSL certificates verified as files ✅"
@@ -327,14 +348,14 @@ deploy_services() {
 # Verify deployment
 verify_deployment() {
     log_info "Verifying deployment..."
-    
+
     # Check if services are running by name pattern
     containers=$(docker ps -q --filter "name=${NAME_OF_APPLICATION}-.*-${USER_ID}-.*")
     if [[ -z "$containers" ]]; then
         log_error "Services are not running properly"
         return 1
     fi
-    
+
     # Test API health endpoint
     sleep 10
     if curl -f -s "https://${DOMAIN}:${HTTPS_PORT}/" > /dev/null; then
@@ -342,14 +363,14 @@ verify_deployment() {
     else
         log_warn "API health check failed, but services are running"
     fi
-    
+
     log_info "Deployment verification completed"
 }
 
 # Setup firewall
 setup_firewall() {
     log_info "Configuring firewall..."
-    
+
     if command -v ufw &> /dev/null; then
         # Configure UFW if available: open each non-empty port of the port set
         local name port
@@ -369,7 +390,7 @@ setup_firewall() {
 # Create backup script
 create_backup_script() {
     log_info "Creating backup script..."
-    
+
     mkdir -p ./scripts
 
     local env_prefix
@@ -411,7 +432,7 @@ else
     exit 1
 fi
 EOF
-    
+
     chmod +x ./scripts/backup.sh
     log_info "Backup script created ✅"
 }
@@ -421,6 +442,7 @@ start_services() {
     log_info "Starting ${NAME_OF_APPLICATION} production deployment..."
     show_environment
     check_prerequisites
+    ensure_env_file
     generate_secrets
     generate_nginx_config
     setup_ssl
@@ -428,7 +450,7 @@ start_services() {
     verify_deployment
     setup_firewall
     create_backup_script
-    
+
     log_info "Services started successfully ✅"
 }
 
@@ -500,7 +522,7 @@ check_status() {
     # Check docker status using docker container ls
     docker_status="IS_NOT_RUNNING"
     docker_ports="[]"
-    
+
     if docker container ls --filter "status=running" --format "{{.Names}}" | grep "^${NAME_OF_APPLICATION}-.*-${USER_ID}-.*$"; then
         docker_status="IS_RUNNING"
         # Extract all ports from running containers matching the pattern
@@ -509,7 +531,7 @@ check_status() {
             docker_ports=$(echo "$all_ports" | jq -R . | jq -s .)
         fi
     fi
-    
+
     # Get git remote URLs
     git_remotes=$(git remote -v 2>/dev/null | awk '{print $2}' | sort -u | jq -R . | jq -s . 2>/dev/null || echo '[]')
 
