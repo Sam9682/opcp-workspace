@@ -8,7 +8,7 @@ http {
     }
 
     upstream backend {
-        server backend:8000;
+        server backend-component:8000;
     }
 
     # Map to handle CORS headers properly

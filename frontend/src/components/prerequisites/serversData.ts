@@ -34,7 +34,7 @@ export const SERVER_NODES: ReadonlyArray<ServerNode> = [
     remark: '',
   },
   {
-    nodeUuid: '00000000-0000-0000-0000-000000000000',
+    nodeUuid: '00000000-0000-0000-0000-000000000000/',
     serialNumber: 'XXXXXXXXXX',
     instanceUuid: '',
     powerState: 'power off',
