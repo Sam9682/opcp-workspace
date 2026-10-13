@@ -99,6 +99,10 @@ export const fr: TranslationDictionary = {
   'prereq.nav.coreControlPlane': 'Core Control Plane',
   'prereq.nav.cloudstore': 'CloudStore',
   'prereq.nav.vcf': 'VCF',
+  'prereq.vcf.generateManagement.button':
+    'Générer le fichier JSON du domaine de management',
+  'prereq.vcf.generateWorkload.button':
+    'Générer le fichier JSON du domaine workload',
   'prereq.nav.networkFlux': 'Network Flux',
   // Prerequisites tracking status labels.
   'prereq.status.received': 'Reçu',
@@ -588,6 +592,10 @@ export const en: TranslationDictionary = {
   'prereq.nav.coreControlPlane': 'Core Control Plane',
   'prereq.nav.cloudstore': 'CloudStore',
   'prereq.nav.vcf': 'VCF',
+  'prereq.vcf.generateManagement.button':
+    'Generate management domain JSON file',
+  'prereq.vcf.generateWorkload.button':
+    'Generate workload domain JSON file',
   'prereq.nav.networkFlux': 'Network Flux',
   // Prerequisites tracking status labels.
   'prereq.status.received': 'Received',

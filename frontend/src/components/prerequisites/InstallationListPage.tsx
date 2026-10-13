@@ -10,8 +10,6 @@ import {
   clearInstallationValues,
   exportInstallation,
   generateArchitectureDocument,
-  generateCloudStoreVcfControlPlane,
-  generateCloudStoreVcfDataPlane,
   importInstallation,
   parseImportFile,
 } from '../../services/installationExport';
@@ -132,44 +130,6 @@ export const InstallationListPage = () => {
       showRowStatus(installation.id, 'success', t('prereq.installations.generateDoc.success'));
     } catch {
       showRowStatus(installation.id, 'error', t('prereq.installations.generateDoc.error'));
-    } finally {
-      setBusyId(null);
-    }
-  };
-
-  // Generate the CloudStore VCF control-plane / data-plane JSON descriptors.
-  // Each descriptor starts from the service template and overrides every mapped
-  // value with the installation's recorded answers, so the generation fetches
-  // the stored answers from the backend and is async.
-  const handleGenerateControlPlane = async (installation: Installation) => {
-    setBusyId(installation.id);
-    clearStatus(installation.id);
-    try {
-      await generateCloudStoreVcfControlPlane(installation);
-      showRowStatus(
-        installation.id,
-        'success',
-        t('prereq.installations.generateControlPlane.success'),
-      );
-    } catch {
-      showRowStatus(installation.id, 'error', t('prereq.installations.generatePlane.error'));
-    } finally {
-      setBusyId(null);
-    }
-  };
-
-  const handleGenerateDataPlane = async (installation: Installation) => {
-    setBusyId(installation.id);
-    clearStatus(installation.id);
-    try {
-      await generateCloudStoreVcfDataPlane(installation);
-      showRowStatus(
-        installation.id,
-        'success',
-        t('prereq.installations.generateDataPlane.success'),
-      );
-    } catch {
-      showRowStatus(installation.id, 'error', t('prereq.installations.generatePlane.error'));
     } finally {
       setBusyId(null);
     }
@@ -507,22 +467,6 @@ export const InstallationListPage = () => {
                         className={SECONDARY_BUTTON}
                       >
                         {t('prereq.installations.generateDoc.button')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleGenerateControlPlane(installation)}
-                        disabled={busyId === installation.id}
-                        className={SECONDARY_BUTTON}
-                      >
-                        {t('prereq.installations.generateControlPlane.button')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleGenerateDataPlane(installation)}
-                        disabled={busyId === installation.id}
-                        className={SECONDARY_BUTTON}
-                      >
-                        {t('prereq.installations.generateDataPlane.button')}
                       </button>
                     </>
                   )}

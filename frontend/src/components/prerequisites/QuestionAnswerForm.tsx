@@ -154,14 +154,14 @@ export const QuestionAnswerForm = ({
             onClick={() => downloadDomainJson('management')}
             className="rounded bg-[#000E9C] px-4 py-2 text-sm font-semibold text-white hover:bg-[#000B7A] focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1"
           >
-            Générer le fichier JSON du domaine de management
+            {t('prereq.vcf.generateManagement.button')}
           </button>
           <button
             type="button"
             onClick={() => downloadDomainJson('workload')}
             className="rounded bg-[#000E9C] px-4 py-2 text-sm font-semibold text-white hover:bg-[#000B7A] focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1"
           >
-            Générer le fichier JSON du domaine workload
+            {t('prereq.vcf.generateWorkload.button')}
           </button>
         </div>
       )}
