@@ -308,41 +308,34 @@ class TestProviderWiring:
         provider = get_ai_provider("opcp_companion")
         assert isinstance(provider, OpcpCompanionProvider)
 
-    def test_client_and_pg_wiring_uses_settings(self):
-        """Req 4.5, 4.6, 2.1: base_url/api_key for embed vs llm; PG_* for conn."""
-        import sys
+    def test_client_and_pg_wiring_uses_shared_resources(self):
+        """Req 4.5, 4.6, 2.1 (oracle-speedup): the provider now obtains its
+        embedding/LLM clients and its pgvector connection from the shared,
+        reused resource layer (``app.oracle.resources``) instead of constructing
+        a fresh client / connection on every call.
 
-        from app.config import settings as app_settings
+        The settings-based construction of those shared resources (base_url /
+        api_key for embed vs llm, PG_* for the pool) is covered by
+        ``tests/test_oracle_resources.py``; here we assert the provider delegates
+        to them.
+        """
+        from app.oracle import resources as resources_module
 
         provider = OpcpCompanionProvider()
-        provider.embed_endpoint = "https://embed.example/v1"
-        provider.embed_token = "embed-token"
-        provider.llm_endpoint = "https://llm.example/v1"
-        provider.llm_token = "llm-token"
 
-        # The provider imports `from openai import OpenAI` lazily. Inject a fake
-        # `openai` module so the wiring can be asserted without the real package.
-        mock_openai = MagicMock()
-        fake_openai_module = SimpleNamespace(OpenAI=mock_openai)
-        with patch.dict(sys.modules, {"openai": fake_openai_module}):
-            provider._get_embed_client()
-            mock_openai.assert_called_with(
-                base_url="https://embed.example/v1", api_key="embed-token"
-            )
-            provider._get_llm_client()
-            mock_openai.assert_called_with(
-                base_url="https://llm.example/v1", api_key="llm-token"
-            )
+        embed_client = MagicMock(name="shared-embed")
+        llm_client = MagicMock(name="shared-llm")
+        pooled_conn = MagicMock(name="pooled-conn")
+        fake_pool = MagicMock(name="pool")
+        fake_pool.getconn.return_value = pooled_conn
 
-        with patch("psycopg2.connect") as mock_connect:
-            provider._get_pg_connection()
-            mock_connect.assert_called_once_with(
-                host=app_settings.PG_HOST,
-                port=app_settings.PG_PORT,
-                dbname=app_settings.PG_DB,
-                user=app_settings.PG_USER,
-                password=app_settings.PG_PASSWORD,
-            )
+        with patch.object(resources_module, "get_embed_client", return_value=embed_client), \
+             patch.object(resources_module, "get_llm_client", return_value=llm_client), \
+             patch.object(resources_module, "get_pg_pool", return_value=fake_pool):
+            assert provider._get_embed_client() is embed_client
+            assert provider._get_llm_client() is llm_client
+            assert provider._get_pg_connection() is pooled_conn
+            fake_pool.getconn.assert_called_once()
 
     def test_empty_ovh_token_raises_naming_var(self):
         """Req 5.3: empty OVH_AI_TOKEN -> error naming the variable."""
@@ -677,9 +670,16 @@ def test_bug_condition_vector_store_missing_before_search(embedding, top_k, monk
     Validates: Requirements 1.1, 1.2, 1.3, 2.1, 2.2, 2.3
     """
     from app.config import settings as app_settings
+    from app.oracle import resources as resources_module
 
     monkeypatch.setattr(app_settings, "OVH_AI_TOKEN", "tok-embed", raising=False)
     monkeypatch.setattr(app_settings, "LLM_TOKEN", "tok-llm", raising=False)
+
+    # oracle-speedup: provisioning now runs at most once per process (guarded by
+    # a module flag). Each Hypothesis example models a FRESH process / vector DB
+    # where `md_embeddings` is missing, so reset the one-time flag per example to
+    # exercise the "provision before search" property on every generated input.
+    resources_module.dispose_all()
 
     provider = OpcpCompanionProvider()
     provider.embed_token = "tok-embed"

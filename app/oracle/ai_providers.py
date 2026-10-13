@@ -174,8 +174,28 @@ class KiroAIProvider(AIProvider):
 
 
 class ShaiAIProvider(AIProvider):
-    """Shai CLI AI Provider - Uses local Ubuntu session with shai CLI"""
-    
+    """Shai AI Provider — calls the OVH OpenAI-compatible endpoint.
+
+    Previously this provider spawned a one-shot ``shai`` CLI subprocess on every
+    query, paying process + model-handshake cold-start each time. It now calls
+    the OpenAI-compatible chat endpoint configured at ``settings.SHAI_API_URL``
+    through a process-wide shared client (see :mod:`app.oracle.resources`), so
+    the HTTP client is built once and reused across requests. The prompt is
+    still assembled by :func:`_build_shai_prompt` from the (optional) business
+    skill context, the (optional) existing context, and the question, and the
+    return contract is unchanged.
+    """
+
+    def _get_client(self):
+        """Return the shared Shai HTTP client (OpenAI-compatible).
+
+        Indirection kept as an instance method so tests can patch the client
+        without touching the shared-resource module.
+        """
+        from app.oracle.resources import get_shai_client
+
+        return get_shai_client()
+
     async def query(
         self,
         question: str,
@@ -183,80 +203,51 @@ class ShaiAIProvider(AIProvider):
         temperature: float = 0.7,
         max_tokens: int = 2000
     ) -> Dict[str, Any]:
-        """Query Shai AI via CLI"""
+        """Query Shai via the OVH OpenAI-compatible chat endpoint."""
         start_time = time.time()
+
+        # Token guard: fail early with a clear French message if misconfigured.
+        if not settings.SHAI_API_KEY:
+            raise Exception(
+                "Configuration manquante : SHAI_API_KEY est requis pour "
+                "interroger le fournisseur Shai."
+            )
 
         try:
             skill_context = _load_shai_skill_context()
             prompt = _build_shai_prompt(skill_context, context, question)
 
-            import os
-            env = os.environ.copy()
-            shai_paths = [
-                "/root/.local/bin",
-                "/home/ubuntu/.local/bin",
-                os.path.expanduser("~/.local/bin")
-            ]
-            current_path = env.get('PATH', '')
-            env['PATH'] = ':'.join(shai_paths + [current_path])
+            client = self._get_client()
 
-            process = await asyncio.create_subprocess_exec(
-                'shai', prompt,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                env=env
+            # The blocking OpenAI-compatible call is offloaded to a worker thread
+            # so it never blocks the event loop (same pattern as OpcpCompanion).
+            response = await asyncio.to_thread(
+                lambda: client.chat.completions.create(
+                    model=settings.SHAI_MODEL,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
             )
 
-            try:
-                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=60.0)
-            except asyncio.TimeoutError:
-                process.kill()
-                logger.error("Shai CLI timeout after 60 seconds")
-                raise Exception("Shai CLI timeout - la requête a pris trop de temps")
-
-            output = stdout.decode().strip()
-            error_output = stderr.decode().strip() if stderr else ""
-
-            if process.returncode != 0:
-                error_msg = error_output or output or "Unknown error"
-                logger.error(f"Shai CLI error: {error_msg}")
-
-                if "not found" in error_msg or "command not found" in error_msg or "No such file or directory" in error_msg:
-                    raise Exception("Shai CLI n'est pas installé. Veuillez reconstruire le container Docker ou utiliser un autre fournisseur d'IA.")
-
-                raise Exception(f"Shai CLI a échoué: {error_msg}")
-
-            answer = strip_ansi_codes(output)
-            answer = answer.strip()
-            
-            lines = answer.split('\n')
-            cleaned_lines = []
-            skip_box = False
-            
-            for line in lines:
-                if '╭' in line or '╰' in line or '│' in line:
-                    skip_box = True
-                    continue
-                if skip_box and ('─' in line or not line.strip()):
-                    continue
-                skip_box = False
-                
-                if '▸ Time:' in line or line.strip().startswith('Time:'):
-                    continue
-                    
-                cleaned_lines.append(line)
-            
-            answer = '\n'.join(cleaned_lines).strip()
-
+            answer = (response.choices[0].message.content or "").strip()
             if not answer:
-                raise Exception("Shai CLI n'a pas retourné de réponse")
+                raise Exception("Shai n'a pas retourné de réponse")
+
+            # tokens_used from reported usage, else approximate by word count.
+            tokens_used = len(answer.split())
+            usage = getattr(response, "usage", None)
+            if usage is not None:
+                total = getattr(usage, "total_tokens", None)
+                if total is not None:
+                    tokens_used = total
 
             processing_time = time.time() - start_time
 
             return {
                 "answer": answer,
                 "processing_time": processing_time,
-                "tokens_used": len(answer.split()),
+                "tokens_used": tokens_used,
                 "provider": "shai"
             }
 
@@ -331,6 +322,18 @@ class OpenAIProvider(AIProvider):
             raise
 
 
+def _is_vector_store_provisioned() -> bool:
+    """Proxy vers l'indicateur de provisionnement unique (module resources)."""
+    from app.oracle.resources import is_vector_store_provisioned
+    return is_vector_store_provisioned()
+
+
+def _mark_vector_store_provisioned() -> None:
+    """Marque le magasin vectoriel comme provisionné (module resources)."""
+    from app.oracle.resources import mark_vector_store_provisioned
+    mark_vector_store_provisioned()
+
+
 class OpcpCompanionProvider(AIProvider):
     """Fournisseur RAG : embedding OVH + recherche pgvector + génération LLM OVH.
 
@@ -354,26 +357,56 @@ class OpcpCompanionProvider(AIProvider):
         self.top_k = 3
 
     # --- Clients ---
+    # Les clients et connexions sont désormais fournis par le pool de ressources
+    # partagées (app.oracle.resources) : construits une seule fois et réutilisés
+    # entre les requêtes, au lieu d'être recréés à chaque appel. Ces méthodes
+    # restent des points d'indirection d'instance pour que les tests puissent les
+    # patcher sans toucher au module de ressources.
     def _get_embed_client(self):
-        """Client OpenAI pointant vers les OVH AI Endpoints (embeddings)."""
-        from openai import OpenAI
-        return OpenAI(base_url=self.embed_endpoint, api_key=self.embed_token)
+        """Client OVH (embeddings) — réutilisé via le pool de ressources partagées."""
+        from app.oracle.resources import get_embed_client
+        return get_embed_client()
 
     def _get_llm_client(self):
-        """Client OpenAI pointant vers l'endpoint LLM (génération)."""
-        from openai import OpenAI
-        return OpenAI(base_url=self.llm_endpoint, api_key=self.llm_token)
+        """Client OVH (génération) — réutilisé via le pool de ressources partagées."""
+        from app.oracle.resources import get_llm_client
+        return get_llm_client()
 
     def _get_pg_connection(self):
-        """Connexion Postgres pgvector via les variables PG_* de la configuration."""
-        import psycopg2
-        return psycopg2.connect(
-            host=settings.PG_HOST,
-            port=settings.PG_PORT,
-            dbname=settings.PG_DB,
-            user=settings.PG_USER,
-            password=settings.PG_PASSWORD,
-        )
+        """Connexion pgvector empruntée au pool de connexions partagé.
+
+        Emprunte une connexion au pool (ouverte une fois, réutilisée) plutôt que
+        d'ouvrir une nouvelle connexion psycopg2 à chaque requête. La connexion
+        doit être restituée au pool via ``_release_pg_connection``; ``query``
+        s'en charge dans un bloc ``finally``.
+        """
+        from app.oracle.resources import get_pg_pool
+        return get_pg_pool().getconn()
+
+    def _release_pg_connection(self, conn, broken: bool = False) -> None:
+        """Restitue une connexion empruntée au pool.
+
+        ``broken=True`` demande au pool de fermer et jeter la connexion (socket
+        défectueux) au lieu de la réutiliser. Best-effort : ne masque jamais une
+        erreur du corps appelant. Si aucun pool n'existe (ex. connexion fournie
+        hors pool dans les tests), la connexion est simplement fermée.
+        """
+        from app.oracle.resources import peek_pg_pool
+
+        pool = peek_pg_pool()
+        if pool is not None:
+            try:
+                pool.putconn(conn, close=broken)
+                return
+            except Exception:  # pragma: no cover - defensive
+                pass
+        # Repli : fermeture directe (connexion hors pool, ex. tests).
+        close = getattr(conn, "close", None)
+        if callable(close):
+            try:
+                close()
+            except Exception:  # pragma: no cover - defensive
+                pass
 
     def ensure_vector_store(self, conn) -> None:
         """Provisionne le magasin vectoriel de façon idempotente.
@@ -525,16 +558,26 @@ class OpcpCompanionProvider(AIProvider):
             )
 
         # 2. Récupération des fragments dans pgvector — Req 5.1
+        # La connexion est empruntée au pool partagé (ouvert une seule fois) puis
+        # restituée dans le bloc finally, au lieu d'ouvrir/fermer une connexion
+        # psycopg2 à chaque requête.
         conn = None
+        conn_broken = False
         try:
             conn = await asyncio.to_thread(self._get_pg_connection)
-            # Provisionnement idempotent du magasin vectoriel avant la recherche
-            # (extension pgvector + table de recherche). Sans effet si déjà en
-            # place. En cas d'échec, on lève un message clair nommant la table
-            # cible et la base vectorielle, sans divulguer PG_PASSWORD. Req 2.1-2.3
+            # Provisionnement idempotent du magasin vectoriel, exécuté AU PLUS UNE
+            # FOIS par processus (hors du chemin critique des requêtes
+            # suivantes). Au premier appel, le DDL « CREATE EXTENSION/TABLE IF NOT
+            # EXISTS » est émis sur la connexion de recherche AVANT le SELECT ;
+            # les appels suivants sont des no-op. En cas d'échec, on lève un
+            # message clair nommant la table cible et la base vectorielle, sans
+            # divulguer PG_PASSWORD. Req 2.1-2.3
             try:
-                await asyncio.to_thread(self.ensure_vector_store, conn)
+                if not _is_vector_store_provisioned():
+                    await asyncio.to_thread(self.ensure_vector_store, conn)
+                    _mark_vector_store_provisioned()
             except Exception as provisioning_error:
+                conn_broken = True
                 logger.error(
                     f"OPCP Companion vector store provisioning failed: {str(provisioning_error)}"
                 )
@@ -548,6 +591,7 @@ class OpcpCompanionProvider(AIProvider):
                 self._search, conn, query_vector, self.top_k
             )
         except Exception as e:
+            conn_broken = True
             logger.error(f"OPCP Companion pgvector search failed: {str(e)}")
             raise Exception(
                 f"Échec de la connexion ou de la recherche dans la base de données vectorielle ({str(e)})"
@@ -555,8 +599,10 @@ class OpcpCompanionProvider(AIProvider):
         finally:
             if conn is not None:
                 try:
-                    await asyncio.to_thread(conn.close)
-                except Exception:
+                    await asyncio.to_thread(
+                        self._release_pg_connection, conn, conn_broken
+                    )
+                except Exception:  # pragma: no cover - defensive
                     pass
 
         # 3. Assemblage du contexte et génération de la réponse (appel OVH) — Req 5.2

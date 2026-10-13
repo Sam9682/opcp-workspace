@@ -54,6 +54,26 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+@pytest.fixture(autouse=True)
+def _reset_oracle_resources():
+    """Reset the shared Oracle resource singletons around every test.
+
+    The Oracle providers now reuse process-wide clients, a pgvector connection
+    pool, and a one-time "vector store provisioned" flag (app.oracle.resources).
+    Resetting before and after each test keeps provider tests independent — in
+    particular the one-time provisioning flag must start False so the
+    provisioning-on-first-query assertions are reproducible, and no real pool is
+    left open between tests.
+    """
+    from app.oracle import resources
+
+    resources.dispose_all()
+    try:
+        yield
+    finally:
+        resources.dispose_all()
+
+
 @pytest.fixture(scope="function")
 def db_session():
     """Create a fresh database session for each test"""

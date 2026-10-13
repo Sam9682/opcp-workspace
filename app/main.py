@@ -51,12 +51,31 @@ async def lifespan(app: FastAPI):
     # Start background task scheduler
     task_scheduler.start()
     logger.info("Background task scheduler started")
-    
+
+    # Warm up the shared Oracle AI resources (HTTP clients + pgvector pool) so
+    # the first query skips cold-start. Best-effort: any failure (e.g. missing
+    # provider configuration) logs a warning and never blocks startup, mirroring
+    # the defensive DB-encryption-key seed above. Providers still lazily
+    # initialize on first use as a fallback.
+    try:
+        from app.oracle.resources import warmup_oracle_resources
+        warmup_oracle_resources()
+    except Exception as exc:  # pragma: no cover - defensive; never block startup
+        logger.warning(f"Could not warm up Oracle resources: {exc}")
+
     yield
     
     # Shutdown
     task_scheduler.shutdown()
     logger.info("Background task scheduler stopped")
+
+    # Dispose shared Oracle resources (close HTTP clients + pgvector pool).
+    try:
+        from app.oracle.resources import dispose_all
+        dispose_all()
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning(f"Could not dispose Oracle resources: {exc}")
+
     logger.info(f"Shutting down {settings.APP_NAME}")
 
 

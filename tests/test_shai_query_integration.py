@@ -1,33 +1,34 @@
 """Integration test for ``ShaiAIProvider.query()`` prompt assembly.
 
-Feature: shai-ia-context
-
-Covers optional test task:
-- 6.2  Integration test for `ShaiAIProvider.query()` prompt assembly
+Feature: shai-ia-context (prompt assembly) + oracle-speedup (HTTP transport)
 
 The Shai provider assembles the prompt from the (optional) skill context, the
-(optional) existing context, and the user question, then sends it as the single
-positional argument to the ``shai`` CLI via
-``asyncio.create_subprocess_exec('shai', prompt, ...)``.
+(optional) existing context, and the user question, then sends it to the OVH
+OpenAI-compatible chat endpoint (``settings.SHAI_API_URL``) through a
+process-wide shared client (see ``app/oracle/resources.py``). This replaced the
+former one-shot ``shai`` CLI subprocess, removing per-query cold-start.
 
 These tests exercise the real ``query()`` code path end to end, replacing only
-the subprocess boundary with an ``AsyncMock`` whose fake process returns clean
-stdout, empty stderr, and returncode 0. We capture the positional args passed to
-the CLI to assert the assembled prompt, for two cases:
+the shared HTTP client with a mock whose ``chat.completions.create`` records the
+messages it receives and returns a canned answer. We capture the single user
+message to assert the assembled prompt, for two cases:
 
 (a) skill-context file present  -> prompt has skill context first, then
     ``Contexte:``, then ``Question:`` (combine, not replace).
 (b) skill-context file missing   -> prompt degrades to existing context +
     question, no skill context, and ``query()`` still succeeds.
 
-``app/oracle/ai_providers.py`` is not modified.
+A regression assertion also verifies that NO subprocess is spawned on the Shai
+path (the latency fix): ``asyncio.create_subprocess_exec`` must not be called.
 
-Requirements: 2.1, 2.2, 2.3, 2.4, 3.1, 3.4
+Requirements: 2.1, 2.2, 2.3, 2.4, 3.1, 3.4 (prompt assembly); oracle-speedup.
 """
 import asyncio
-from unittest.mock import AsyncMock, patch
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
 
 import app.oracle.ai_providers as ai_providers
+from app.config import settings
 from app.oracle.ai_providers import ShaiAIProvider
 
 
@@ -35,31 +36,46 @@ from app.oracle.ai_providers import ShaiAIProvider
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _make_fake_subprocess(stdout: bytes = b"Reponse Shai simulee.", returncode: int = 0):
-    """Build an AsyncMock replacing ``asyncio.create_subprocess_exec``.
+def _make_fake_shai_client(answer: str = "Reponse Shai simulee."):
+    """Build a mock OpenAI-compatible client recording the created messages.
 
-    The mock records the positional args of each call and returns a fake process
-    whose ``communicate()`` coroutine yields ``(stdout, b"")`` and whose
-    ``returncode`` is ``returncode``. ``kill`` is a no-op.
+    ``chat.completions.create(...)`` records its kwargs on ``client.calls`` and
+    returns a response shaped like the OpenAI SDK
+    (``.choices[0].message.content`` + ``.usage.total_tokens``).
     """
-    fake_process = AsyncMock()
-    fake_process.communicate.return_value = (stdout, b"")
-    fake_process.returncode = returncode
-    fake_process.kill = lambda: None
+    client = MagicMock()
+    client.calls = []
 
-    create_mock = AsyncMock(return_value=fake_process)
-    return create_mock
+    def _create(**kwargs):
+        client.calls.append(kwargs)
+        return SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=answer))],
+            usage=SimpleNamespace(total_tokens=7),
+        )
+
+    client.chat.completions.create = MagicMock(side_effect=_create)
+    return client
 
 
-def _captured_prompt(create_mock) -> str:
-    """Extract the prompt (2nd positional arg) passed to the Shai CLI."""
-    assert create_mock.await_count == 1, (
-        f"expected exactly one subprocess call, got {create_mock.await_count}"
+def _captured_prompt(client) -> str:
+    """Extract the single user message content passed to the Shai client."""
+    assert len(client.calls) == 1, (
+        f"expected exactly one chat.completions.create call, got {len(client.calls)}"
     )
-    args, _kwargs = create_mock.await_args
-    # query() calls create_subprocess_exec('shai', prompt, ...)
-    assert args[0] == "shai"
-    return args[1]
+    messages = client.calls[0]["messages"]
+    assert len(messages) == 1 and messages[0]["role"] == "user"
+    return messages[0]["content"]
+
+
+def _run_shai_query(provider, client, question, context=None):
+    """Run query() with the shared client patched and a key configured."""
+    no_subprocess = MagicMock(
+        side_effect=AssertionError("Shai must not spawn a subprocess")
+    )
+    with patch.object(settings, "SHAI_API_KEY", "test-shai-key"), \
+         patch.object(provider, "_get_client", return_value=client), \
+         patch.object(ai_providers.asyncio, "create_subprocess_exec", no_subprocess):
+        return asyncio.run(provider.query(question, context=context))
 
 
 # ---------------------------------------------------------------------------
@@ -77,15 +93,13 @@ def test_query_prepends_skill_context_before_context_and_question(tmp_path, monk
     ctx_file.write_text(skill + "\n", encoding="utf-8")
     monkeypatch.setattr(ai_providers, "SHAI_SKILL_CONTEXT_PATH", str(ctx_file))
 
-    create_mock = _make_fake_subprocess()
-
+    client = _make_fake_shai_client()
     provider = ShaiAIProvider()
-    with patch.object(ai_providers.asyncio, "create_subprocess_exec", create_mock):
-        result = asyncio.run(
-            provider.query("Comment provisionner un cluster ?", context="cluster de prod")
-        )
+    result = _run_shai_query(
+        provider, client, "Comment provisionner un cluster ?", context="cluster de prod"
+    )
 
-    prompt = _captured_prompt(create_mock)
+    prompt = _captured_prompt(client)
 
     skill_pos = prompt.index(skill)
     context_block = "Contexte: cluster de prod"
@@ -100,9 +114,11 @@ def test_query_prepends_skill_context_before_context_and_question(tmp_path, monk
     # Exact assembly (skill + Contexte + Question joined with blank lines).
     assert prompt == f"{skill}\n\n{context_block}\n\n{question_block}"
 
-    # query() completes and returns the provider payload from the fake CLI.
+    # query() completes and returns the provider payload from the HTTP client.
     assert result["provider"] == "shai"
     assert result["answer"] == "Reponse Shai simulee."
+    # Endpoint model comes from settings.
+    assert client.calls[0]["model"] == settings.SHAI_MODEL
 
 
 def test_query_combines_skill_context_and_question_when_no_existing_context(
@@ -118,13 +134,11 @@ def test_query_combines_skill_context_and_question_when_no_existing_context(
     ctx_file.write_text(skill, encoding="utf-8")
     monkeypatch.setattr(ai_providers, "SHAI_SKILL_CONTEXT_PATH", str(ctx_file))
 
-    create_mock = _make_fake_subprocess()
-
+    client = _make_fake_shai_client()
     provider = ShaiAIProvider()
-    with patch.object(ai_providers.asyncio, "create_subprocess_exec", create_mock):
-        result = asyncio.run(provider.query("Qu'est-ce qu'OPCP ?"))
+    result = _run_shai_query(provider, client, "Qu'est-ce qu'OPCP ?")
 
-    prompt = _captured_prompt(create_mock)
+    prompt = _captured_prompt(client)
 
     question_block = "Question: Qu'est-ce qu'OPCP ?"
     assert prompt == f"{skill}\n\n{question_block}"
@@ -146,16 +160,13 @@ def test_query_degrades_to_context_and_question_when_file_missing(tmp_path, monk
     missing = tmp_path / "does_not_exist.md"
     monkeypatch.setattr(ai_providers, "SHAI_SKILL_CONTEXT_PATH", str(missing))
 
-    create_mock = _make_fake_subprocess()
-
+    client = _make_fake_shai_client()
     provider = ShaiAIProvider()
-    with patch.object(ai_providers.asyncio, "create_subprocess_exec", create_mock):
-        # Must not raise because of the missing file (Req 3.4).
-        result = asyncio.run(
-            provider.query("Comment sauvegarder ?", context="donnees critiques")
-        )
+    result = _run_shai_query(
+        provider, client, "Comment sauvegarder ?", context="donnees critiques"
+    )
 
-    prompt = _captured_prompt(create_mock)
+    prompt = _captured_prompt(client)
 
     context_block = "Contexte: donnees critiques"
     question_block = "Question: Comment sauvegarder ?"
@@ -176,14 +187,35 @@ def test_query_degrades_to_question_only_when_file_missing_and_no_context(
     missing = tmp_path / "nope.md"
     monkeypatch.setattr(ai_providers, "SHAI_SKILL_CONTEXT_PATH", str(missing))
 
-    create_mock = _make_fake_subprocess()
-
+    client = _make_fake_shai_client()
     provider = ShaiAIProvider()
-    with patch.object(ai_providers.asyncio, "create_subprocess_exec", create_mock):
-        result = asyncio.run(provider.query("Une simple question ?"))
+    result = _run_shai_query(provider, client, "Une simple question ?")
 
-    prompt = _captured_prompt(create_mock)
+    prompt = _captured_prompt(client)
 
     assert prompt == "Question: Une simple question ?"
     assert "Contexte:" not in prompt
     assert result["provider"] == "shai"
+
+
+# ---------------------------------------------------------------------------
+# oracle-speedup: missing key -> clear French config error (no network)
+# ---------------------------------------------------------------------------
+
+def test_query_raises_french_config_error_when_key_missing():
+    """With no SHAI_API_KEY, query() fails fast with a French config error and
+    never builds/calls a client."""
+    provider = ShaiAIProvider()
+    client = _make_fake_shai_client()
+    with patch.object(settings, "SHAI_API_KEY", ""), \
+         patch.object(provider, "_get_client", return_value=client):
+        try:
+            asyncio.run(provider.query("Une question ?"))
+            raised = None
+        except Exception as exc:  # noqa: BLE001 - asserting on message
+            raised = str(exc)
+
+    assert raised is not None
+    assert "SHAI_API_KEY" in raised
+    # No client call happened.
+    assert client.calls == []

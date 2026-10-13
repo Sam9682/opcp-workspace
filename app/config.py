@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4"
     SHAI_API_KEY: str = ""
     SHAI_API_URL: str = "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1"  # Use EU endpoint to avoid redirect
+    SHAI_MODEL: str = "Qwen2.5-Coder-32B-Instruct"  # OpenAI-compatible model served by the OVH endpoint
     
     # OPCP Companion (RAG) Configuration
     # OVH AI Endpoints for embeddings (LLM falls back to these when LLM_* is empty)
