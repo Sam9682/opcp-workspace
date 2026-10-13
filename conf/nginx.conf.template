@@ -8,7 +8,7 @@ http {
     }
 
     upstream backend {
-        server ai-shai-web-interface:8000;
+        server backend:8000;
     }
 
     # Map to handle CORS headers properly

@@ -2,6 +2,7 @@ import {
   prerequisitesService,
   type CredentialConfig,
   type Installation,
+  type ServerNodeOverridePayload,
 } from './prerequisitesService';
 import {
   CHECKLIST_CATEGORIES,
@@ -9,7 +10,8 @@ import {
   QA_CATEGORIES,
   SERVERS_NODES_SLUG,
 } from '../components/prerequisites/checklistCategories';
-import { SERVER_NODES, type ServerNode } from '../components/prerequisites/serversData';
+import { type ServerNode } from '../components/prerequisites/serversData';
+import { mergeNodeOverrides } from '../components/prerequisites/serverNodeOverrides';
 import type {
   ContextConfig,
   ContextRow,
@@ -112,15 +114,25 @@ const escapeHtml = (value: string): string =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
+/** Map a snake_case server-node wire payload to the camelCase override shape. */
+const toServerNodeOverride = (payload: ServerNodeOverridePayload) => ({
+  nodeUuid: payload.node_uuid,
+  serialNumber: payload.serial_number,
+  instanceUuid: payload.instance_uuid,
+  powerState: payload.power_state,
+  provisionState: payload.provision_state,
+  remark: payload.remark,
+});
+
 // ---------------------------------------------------------------------------
 // Export
 // ---------------------------------------------------------------------------
 
 /**
  * Build the export document for an installation by fetching every tab's saved
- * answers plus the servers-nodes credential config. Answer loads are done in
- * parallel; a failed tab load degrades to an empty answer map so the export
- * still succeeds for the remaining tabs.
+ * answers plus the servers-nodes credential config and node inventory. Answer
+ * loads are done in parallel; a failed tab load degrades to an empty answer map
+ * so the export still succeeds for the remaining tabs.
  */
 export const buildInstallationExport = async (
   installation: Installation,
@@ -170,6 +182,23 @@ export const buildInstallationExport = async (
     credentials = null;
   }
 
+  // Server-node inventory: load the per-installation rows persisted/retrieved
+  // by the backend (the same source that drives the Servers nodes table),
+  // rather than the static reference placeholders. Empty defaults mean the
+  // stored data is authoritative for row existence, so a fresh database
+  // exports an empty inventory instead of placeholder rows. A failed load
+  // degrades to an empty list so the rest of the export still succeeds.
+  let nodes: ReadonlyArray<ServerNode> = [];
+  try {
+    const response = await prerequisitesService.loadServerNodes(installation.id);
+    nodes = mergeNodeOverrides(
+      [],
+      (response.nodes ?? []).map(toServerNodeOverride),
+    );
+  } catch {
+    nodes = [];
+  }
+
   return {
     format: 'opcp-installation-export',
     version: EXPORT_FORMAT_VERSION,
@@ -181,7 +210,7 @@ export const buildInstallationExport = async (
     tabs,
     servers: {
       credentials,
-      nodes: SERVER_NODES,
+      nodes,
     },
   };
 };
@@ -292,27 +321,144 @@ export const CLOUDSTORE_VCF_CONTROLPLANE_TEMPLATE: Record<string, unknown> = {
 };
 
 /**
- * Download the CloudStore VCF data-plane descriptor as a JSON file. The content
- * is the fixed {@link CLOUDSTORE_VCF_DATAPLANE_TEMPLATE} rendered with two-space
- * indentation and a trailing newline, matching the other JSON exports.
+ * Slug of the VCF question/answer tab whose stored answers back the CloudStore
+ * VCF control-plane / data-plane descriptors.
  */
-export const generateCloudStoreVcfDataPlane = (): void => {
+const VCF_SLUG = 'vcf';
+
+/**
+ * Control-plane template key -> VCF answer row id. Each mapped template value is
+ * overridden with the recorded answer for the installation when the user
+ * provided a non-empty one; unmapped template keys (e.g. `debug`,
+ * `openstack_auth_type`, `pairing_source`) keep their template default because
+ * no question maps to them.
+ */
+export const CONTROLPLANE_KEY_TO_ROW_ID: Record<string, string> = {
+  appliance_password: 'vcf-mgmt-appliance-password',
+  appliance_xapikey: 'vcf-mgmt-appliance-xapikey',
+  bootstrap_dns_server: 'vcf-mgmt-bootstrap-dns-server',
+  customer_network_dhcp_ip: 'vcf-mgmt-customer-network-dhcp-ip',
+  customer_network_name: 'vcf-mgmt-customer-network-name',
+  dns_server: 'vcf-mgmt-dns-server',
+  dns_zone: 'vcf-mgmt-dns-zone',
+  esxi_root_password: 'vcf-mgmt-esxi-root-password',
+  esxi_setup_script: 'vcf-mgmt-esxi-setup-script',
+  external_network_id: 'vcf-mgmt-external-network-id',
+  flavor_name: 'vcf-mgmt-flavor-name',
+  image_name: 'vcf-mgmt-image-name',
+  keycloak_clusterissuer: 'vcf-mgmt-keycloak-clusterissuer',
+  ntp_server: 'vcf-mgmt-ntp-server',
+  overlay_network_id: 'vcf-mgmt-overlay-network-id',
+  overlay_subnet_id: 'vcf-mgmt-overlay-subnet-id',
+  overlay_subnet_range: 'vcf-mgmt-overlay-subnet-range',
+  overlay_vlan_id: 'vcf-mgmt-overlay-vlan-id',
+  vcf_deployer_ip: 'vcf-mgmt-vcf-deployer-ip',
+  vcf_deployer_url: 'vcf-mgmt-vcf-deployer-url',
+  vcf_master_password: 'vcf-mgmt-master-password',
+  vcf_mgmt_dhcp_ip: 'vcf-mgmt-dhcp-ip',
+  vcf_mgmt_network_name: 'vcf-mgmt-network-name',
+  vcf_mgmt_network_vlan_id: 'vcf-mgmt-network-vlan-id',
+  vcf_mgmt_subnet_name: 'vcf-mgmt-subnet-name',
+  vcf_subdomain: 'vcf-mgmt-vcf-subdomain',
+  vmotion_network_id: 'vcf-mgmt-vmotion-network-id',
+  vmotion_subnet_id: 'vcf-mgmt-vmotion-subnet-id',
+  vmotion_subnet_range: 'vcf-mgmt-vmotion-subnet-range',
+  vmotion_vlan_id: 'vcf-mgmt-vmotion-vlan-id',
+  vsan_network_id: 'vcf-mgmt-vsan-network-id',
+  vsan_subnet_id: 'vcf-mgmt-vsan-subnet-id',
+  vsan_subnet_range: 'vcf-mgmt-vsan-subnet-range',
+  vsan_vlan_id: 'vcf-mgmt-vsan-vlan-id',
+};
+
+/**
+ * Data-plane template key -> VCF answer row id (workload-domain rows). Unmapped
+ * template keys (`dns_create_records`, `esxi_install_timeout`, `lacp`,
+ * `openstack_auth_type`, `openstack_endpoint_type`,
+ * `openstack_identity_api_version`, `pairing_source`) keep their template
+ * default because no question maps to them.
+ */
+export const DATAPLANE_KEY_TO_ROW_ID: Record<string, string> = {
+  overlay_subnet_range: 'vcf-wld-overlay-subnet-range',
+  overlay_vlan_id: 'vcf-wld-overlay-vlan-id',
+  vcf_external_network_id: 'vcf-wld-external-network-id',
+  vcf_overlay_network_id: 'vcf-wld-overlay-network-id',
+  vcf_overlay_subnet_id: 'vcf-wld-overlay-subnet-id',
+  vcf_vmotion_network_id: 'vcf-wld-vmotion-network-id',
+  vcf_vmotion_subnet_id: 'vcf-wld-vmotion-subnet-id',
+  vcf_vsan_network_id: 'vcf-wld-vsan-network-id',
+  vcf_vsan_subnet_id: 'vcf-wld-vsan-subnet-id',
+  vmotion_subnet_range: 'vcf-wld-vmotion-subnet-range',
+  vmotion_vlan_id: 'vcf-wld-vmotion-vlan-id',
+  vsan_subnet_range: 'vcf-wld-vsan-subnet-range',
+  vsan_vlan_id: 'vcf-wld-vsan-vlan-id',
+  workload_domain_num: 'vcf-wld-workload-domain-num',
+};
+
+/**
+ * Build a new descriptor object from `template`, preserving its exact key set
+ * and ordering, overriding each mapped key with the recorded VCF answer when
+ * the user provided a non-empty (trimmed) value. Unmapped keys and keys without
+ * an answer keep the template default (and its original type).
+ */
+export const applyAnswersToTemplate = (
+  template: Record<string, unknown>,
+  keyMap: Record<string, string>,
+  vcfAnswers: Record<string, string>,
+): Record<string, unknown> => {
+  const output: Record<string, unknown> = {};
+  for (const [key, defaultValue] of Object.entries(template)) {
+    const rowId = keyMap[key];
+    const answer = rowId ? vcfAnswers[rowId] : undefined;
+    output[key] =
+      typeof answer === 'string' && answer.trim() ? answer : defaultValue;
+  }
+  return output;
+};
+
+/**
+ * Download the CloudStore VCF data-plane descriptor as a JSON file. Starts from
+ * {@link CLOUDSTORE_VCF_DATAPLANE_TEMPLATE} (preserving its key set/order) and
+ * overrides each mapped value with the installation's recorded VCF answer when
+ * one exists, falling back to the template default otherwise. Rendered with
+ * two-space indentation and a trailing newline.
+ */
+export const generateCloudStoreVcfDataPlane = async (
+  installation: Installation,
+): Promise<void> => {
+  const data = await buildInstallationExport(installation);
+  const vcfAnswers = data.tabs[VCF_SLUG] ?? {};
+  const output = applyAnswersToTemplate(
+    CLOUDSTORE_VCF_DATAPLANE_TEMPLATE,
+    DATAPLANE_KEY_TO_ROW_ID,
+    vcfAnswers,
+  );
   downloadFile(
     CLOUDSTORE_VCF_DATAPLANE_FILENAME,
-    `${JSON.stringify(CLOUDSTORE_VCF_DATAPLANE_TEMPLATE, null, 2)}\n`,
+    `${JSON.stringify(output, null, 2)}\n`,
     'application/json',
   );
 };
 
 /**
- * Download the CloudStore VCF control-plane descriptor as a JSON file. The
- * content is the fixed {@link CLOUDSTORE_VCF_CONTROLPLANE_TEMPLATE} rendered
- * with two-space indentation and a trailing newline.
+ * Download the CloudStore VCF control-plane descriptor as a JSON file. Starts
+ * from {@link CLOUDSTORE_VCF_CONTROLPLANE_TEMPLATE} (preserving its key
+ * set/order) and overrides each mapped value with the installation's recorded
+ * VCF answer when one exists, falling back to the template default otherwise.
+ * Rendered with two-space indentation and a trailing newline.
  */
-export const generateCloudStoreVcfControlPlane = (): void => {
+export const generateCloudStoreVcfControlPlane = async (
+  installation: Installation,
+): Promise<void> => {
+  const data = await buildInstallationExport(installation);
+  const vcfAnswers = data.tabs[VCF_SLUG] ?? {};
+  const output = applyAnswersToTemplate(
+    CLOUDSTORE_VCF_CONTROLPLANE_TEMPLATE,
+    CONTROLPLANE_KEY_TO_ROW_ID,
+    vcfAnswers,
+  );
   downloadFile(
     CLOUDSTORE_VCF_CONTROLPLANE_FILENAME,
-    `${JSON.stringify(CLOUDSTORE_VCF_CONTROLPLANE_TEMPLATE, null, 2)}\n`,
+    `${JSON.stringify(output, null, 2)}\n`,
     'application/json',
   );
 };

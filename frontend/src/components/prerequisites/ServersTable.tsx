@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { SERVER_NODES, type ServerNode } from './serversData';
+import { type ServerNode } from './serversData';
 import {
   mergeNodeOverrides,
   type ServerNodeOverride,
@@ -21,7 +21,11 @@ interface ServersTableProps {
    * inside a tab panel that already provides both.
    */
   variant?: 'card' | 'embedded';
-  /** Server rows to display. Defaults to the built-in inventory. */
+  /**
+   * Server rows to display. Defaults to an empty list so the rendered row set
+   * comes solely from the per-installation data loaded on mount; a fresh
+   * database (no stored rows) therefore renders an empty table.
+   */
   nodes?: ReadonlyArray<ServerNode>;
   /**
    * When present, enables the OpenStack live-retrieval credentials form (and,
@@ -31,6 +35,14 @@ interface ServersTableProps {
 }
 
 const PLACEHOLDER = '—';
+
+/**
+ * Stable empty default for the `nodes` prop. A module-level constant (rather
+ * than an inline `[]`) keeps the `mergeNodeOverrides` memo dependency stable
+ * across renders, so the row set is driven purely by the loaded data without
+ * retriggering the edit-state sync effect on every render.
+ */
+const EMPTY_NODES: ReadonlyArray<ServerNode> = [];
 
 /** Map a snake_case wire payload to the camelCase override shape. */
 const toServerNodeOverride = (
@@ -546,15 +558,16 @@ const LiveResultsSection = ({ loading, errorKey, servers }: LiveResultsSectionPr
 export const ServersTable = ({
   title,
   variant = 'card',
-  nodes = SERVER_NODES,
+  nodes = EMPTY_NODES,
   installationId,
 }: ServersTableProps) => {
   const { t } = useTranslation();
   const embedded = variant === 'embedded';
 
-  // Per-installation overrides layered over the default inventory. Loaded on
-  // mount when an installation is in context; a load failure leaves the table
-  // on defaults with no blocking error (defaults remain authoritative).
+  // Per-installation node data loaded on mount when an installation is in
+  // context. This stored data drives which rows render (merged over the
+  // optional `nodes` prop, empty by default); a load failure leaves the table
+  // empty with no blocking error.
   const [nodesOverrides, setNodesOverrides] = useState<ServerNodeOverride[]>([]);
 
   // Node-save error banner key. Set on a rejected `saveServerNodes`, cleared on
@@ -576,7 +589,7 @@ export const ServersTable = ({
         setNodesOverrides(response.nodes.map(toServerNodeOverride));
       })
       .catch(() => {
-        // No stored overrides yet (or load failed): render the defaults.
+        // No stored node data yet (or load failed): render an empty table.
         if (!cancelled) setNodesOverrides([]);
       });
     return () => {

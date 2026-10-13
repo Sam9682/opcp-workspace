@@ -137,13 +137,15 @@ export const InstallationListPage = () => {
     }
   };
 
-  // Generate the fixed-format CloudStore VCF control-plane / data-plane JSON
-  // descriptors. These are static templates (no server round-trip), so the
-  // download is synchronous; we still surface a per-row success/error message.
-  const handleGenerateControlPlane = (installation: Installation) => {
+  // Generate the CloudStore VCF control-plane / data-plane JSON descriptors.
+  // Each descriptor starts from the service template and overrides every mapped
+  // value with the installation's recorded answers, so the generation fetches
+  // the stored answers from the backend and is async.
+  const handleGenerateControlPlane = async (installation: Installation) => {
+    setBusyId(installation.id);
     clearStatus(installation.id);
     try {
-      generateCloudStoreVcfControlPlane();
+      await generateCloudStoreVcfControlPlane(installation);
       showRowStatus(
         installation.id,
         'success',
@@ -151,13 +153,16 @@ export const InstallationListPage = () => {
       );
     } catch {
       showRowStatus(installation.id, 'error', t('prereq.installations.generatePlane.error'));
+    } finally {
+      setBusyId(null);
     }
   };
 
-  const handleGenerateDataPlane = (installation: Installation) => {
+  const handleGenerateDataPlane = async (installation: Installation) => {
+    setBusyId(installation.id);
     clearStatus(installation.id);
     try {
-      generateCloudStoreVcfDataPlane();
+      await generateCloudStoreVcfDataPlane(installation);
       showRowStatus(
         installation.id,
         'success',
@@ -165,6 +170,8 @@ export const InstallationListPage = () => {
       );
     } catch {
       showRowStatus(installation.id, 'error', t('prereq.installations.generatePlane.error'));
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -503,7 +510,7 @@ export const InstallationListPage = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleGenerateControlPlane(installation)}
+                        onClick={() => void handleGenerateControlPlane(installation)}
                         disabled={busyId === installation.id}
                         className={SECONDARY_BUTTON}
                       >
@@ -511,7 +518,7 @@ export const InstallationListPage = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleGenerateDataPlane(installation)}
+                        onClick={() => void handleGenerateDataPlane(installation)}
                         disabled={busyId === installation.id}
                         className={SECONDARY_BUTTON}
                       >

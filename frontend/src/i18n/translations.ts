@@ -130,10 +130,10 @@ export const fr: TranslationDictionary = {
   'prereq.installations.error.action':
     "L'opération a échoué. Veuillez réessayer.",
   'prereq.installations.error.emptyName': 'Le nom du projet ne peut pas être vide.',
-  'prereq.installations.export.button': 'Exporter les valeurs',
+  'prereq.installations.export.button': 'Exporter toutes les valeurs',
   'prereq.installations.export.success': 'Valeurs exportées avec succès.',
   'prereq.installations.export.error': "Échec de l'export des valeurs.",
-  'prereq.installations.import.button': 'Importer les valeurs',
+  'prereq.installations.import.button': 'Importer toutes les valeurs',
   'prereq.installations.import.success': '{written} valeur(s) importée(s) avec succès.',
   'prereq.installations.import.partial':
     '{written} valeur(s) importée(s), {failed} en échec.',
@@ -142,7 +142,7 @@ export const fr: TranslationDictionary = {
   'prereq.installations.generateDoc.button': "Générer le document d'architecture",
   'prereq.installations.generateDoc.success': "Document d'architecture généré avec succès.",
   'prereq.installations.generateDoc.error': "Échec de la génération du document.",
-  'prereq.installations.generateControlPlane.button': 'Générer le fichier control plane',
+  'prereq.installations.generateControlPlane.button': 'Générer le fichier VCF control plane',
   'prereq.installations.generateControlPlane.success':
     'Fichier control plane généré avec succès.',
   'prereq.installations.generateDataPlane.button': 'Générer le fichier data plane',
@@ -629,7 +629,7 @@ export const en: TranslationDictionary = {
   'prereq.installations.generateDoc.button': 'Generate Architecture Document',
   'prereq.installations.generateDoc.success': 'Architecture document generated successfully.',
   'prereq.installations.generateDoc.error': 'Failed to generate the document.',
-  'prereq.installations.generateControlPlane.button': 'Generate control plane file',
+  'prereq.installations.generateControlPlane.button': 'Generate VCF control plane file',
   'prereq.installations.generateControlPlane.success':
     'Control plane file generated successfully.',
   'prereq.installations.generateDataPlane.button': 'Generate data plane file',
