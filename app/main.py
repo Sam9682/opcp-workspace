@@ -18,6 +18,7 @@ from app.info.router import router as info_router
 from app.users.router import router as users_router
 from app.oracle.router import router as oracle_router
 from app.prerequisites.router import router as prerequisites_router
+from app.document_adapter.router import router as document_adapter_router
 from app.scheduler import task_scheduler
 from app.error_handlers import register_exception_handlers
 from app.middleware.rate_limit import limiter
@@ -118,6 +119,7 @@ app.include_router(info_router)
 app.include_router(users_router)
 app.include_router(oracle_router)
 app.include_router(prerequisites_router)
+app.include_router(document_adapter_router)
 
 
 @app.get("/health")

@@ -18,6 +18,7 @@ import { HowToUsePage } from './pages/HowToUsePage';
 import { InstallationListPage } from './components/prerequisites/InstallationListPage';
 import { InstallationPrereqPage } from './pages/InstallationPrereqPage';
 import { DocumentsPage } from './pages/DocumentsPage';
+import { DocumentAdapterPage } from './pages/DocumentAdapterPage';
 import { EventsPage } from './pages/EventsPage';
 import { TasksPage } from './pages/TasksPage';
 import { SecurityPage } from './pages/SecurityPage';
@@ -131,6 +132,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <DocumentsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/document-adapter"
+                  element={
+                    <ProtectedRoute>
+                      <DocumentAdapterPage />
                     </ProtectedRoute>
                   }
                 />

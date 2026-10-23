@@ -519,6 +519,29 @@ export const fr: TranslationDictionary = {
   'prereq.servers.nodes.saved': 'Modifications enregistrées',
   'prereq.servers.nodes.error.save': 'Échec de l\'enregistrement des nœuds. Veuillez réessayer.',
   'prereq.servers.nodes.error.notFound': 'Installation introuvable. Impossible d\'enregistrer les nœuds.',
+
+  // ---- Document Adapter page ----
+  'nav.documentAdapter': 'Adaptateur de documents',
+  'page.documentAdapter.title': 'Adaptateur de documents',
+  'page.documentAdapter.section.source': 'Document source',
+  'page.documentAdapter.section.audience': 'Public cible et IA',
+  'page.documentAdapter.section.generate': 'Génération et téléchargement',
+  'page.documentAdapter.source.fromLibrary': 'Depuis la bibliothèque',
+  'page.documentAdapter.source.fromUpload': 'Téléverser un fichier',
+  'page.documentAdapter.source.invalidType': 'Formats acceptés : PDF et Word.',
+  'page.documentAdapter.source.required': 'Veuillez sélectionner un document source.',
+  'page.documentAdapter.audience.it_beginner': 'Débutant IT',
+  'page.documentAdapter.audience.intermediate_a': 'Intermédiaire A',
+  'page.documentAdapter.audience.intermediate_b': 'Intermédiaire B',
+  'page.documentAdapter.audience.opcp_expert': 'Expert OPCP',
+  'page.documentAdapter.provider.none': 'Aucun fournisseur d\'IA disponible.',
+  'page.documentAdapter.generate': 'Générer',
+  'page.documentAdapter.generating': 'Génération en cours…',
+  'page.documentAdapter.copy': 'Copier',
+  'page.documentAdapter.download.pdf': 'Télécharger en PDF',
+  'page.documentAdapter.download.docx': 'Télécharger en Word',
+  'page.documentAdapter.error.adapt': 'Échec de la génération. Veuillez réessayer.',
+  'page.documentAdapter.error.download': 'Échec du téléchargement. Veuillez réessayer.',
 };
 
 /** English UI_String text. */
@@ -1009,6 +1032,29 @@ export const en: TranslationDictionary = {
   'prereq.servers.nodes.saved': 'Changes saved',
   'prereq.servers.nodes.error.save': 'Failed to save the nodes. Please try again.',
   'prereq.servers.nodes.error.notFound': 'Installation not found. Unable to save the nodes.',
+
+  // ---- Document Adapter page ----
+  'nav.documentAdapter': 'Document Adapter',
+  'page.documentAdapter.title': 'Document Adapter',
+  'page.documentAdapter.section.source': 'Source document',
+  'page.documentAdapter.section.audience': 'Target audience & AI',
+  'page.documentAdapter.section.generate': 'Generation & download',
+  'page.documentAdapter.source.fromLibrary': 'From library',
+  'page.documentAdapter.source.fromUpload': 'Upload a file',
+  'page.documentAdapter.source.invalidType': 'Accepted formats: PDF and Word.',
+  'page.documentAdapter.source.required': 'Please select a source document.',
+  'page.documentAdapter.audience.it_beginner': 'IT beginner',
+  'page.documentAdapter.audience.intermediate_a': 'Intermediate A',
+  'page.documentAdapter.audience.intermediate_b': 'Intermediate B',
+  'page.documentAdapter.audience.opcp_expert': 'OPCP expert',
+  'page.documentAdapter.provider.none': 'No AI provider available.',
+  'page.documentAdapter.generate': 'Generate',
+  'page.documentAdapter.generating': 'Generating…',
+  'page.documentAdapter.copy': 'Copy',
+  'page.documentAdapter.download.pdf': 'Download as PDF',
+  'page.documentAdapter.download.docx': 'Download as Word',
+  'page.documentAdapter.error.adapt': 'Generation failed. Please try again.',
+  'page.documentAdapter.error.download': 'Download failed. Please try again.',
 };
 
 /** All Translation_Dictionaries keyed by Supported_Language. */

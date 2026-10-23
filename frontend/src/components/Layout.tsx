@@ -101,6 +101,9 @@ export const Layout = ({ children }: LayoutProps) => {
                   <Link to="/documents" className="px-3 py-1.5 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded transition-colors hover:no-underline">
                     {t('nav.documents')}
                   </Link>
+                  <Link to="/document-adapter" className="px-3 py-1.5 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded transition-colors hover:no-underline">
+                    {t('nav.documentAdapter')}
+                  </Link>
                   <Link to="/oracle" className="px-3 py-1.5 text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 rounded transition-colors hover:no-underline">
                     {t('nav.oracle')}
                   </Link>
@@ -245,6 +248,9 @@ export const Layout = ({ children }: LayoutProps) => {
                 )}
                 <Link to="/documents" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded hover:no-underline">
                   {t('nav.documents')}
+                </Link>
+                <Link to="/document-adapter" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded hover:no-underline">
+                  {t('nav.documentAdapter')}
                 </Link>
                 <Link to="/oracle" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded hover:no-underline">
                   {t('nav.oracle')}
