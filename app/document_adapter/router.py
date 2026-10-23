@@ -10,7 +10,9 @@ Exposes two authenticated endpoints:
   selected audience level using the chosen AI provider. Typed service errors
   are mapped to the shared :meth:`ErrorResponse.create` envelope
   (``400 INVALID_FILE_TYPE``, ``400 PROVIDER_DISABLED``,
-  ``404 DOCUMENT_NOT_FOUND`` / ``FILE_NOT_FOUND``, ``500`` otherwise).
+  ``404 DOCUMENT_NOT_FOUND`` / ``FILE_NOT_FOUND``,
+  ``502 PROVIDER_AUTH_ERROR`` when the upstream provider rejects our
+  credentials, ``500`` otherwise).
 - ``POST /api/document-adapter/export`` renders adapted content into a
   downloadable PDF or Word file with a ``Content-Disposition`` filename encoding
   the source identity and the audience level.
@@ -36,6 +38,7 @@ from app.document_adapter.schemas import (
 )
 from app.document_adapter.service import (
     DocumentAdapterService,
+    ProviderAuthError,
     ProviderDisabledError,
     SourceNotFoundError,
     UnsupportedSourceError,
@@ -92,6 +95,8 @@ async def adapt_document(
         HTTPException 400: INVALID_FILE_TYPE (unsupported source) or
             PROVIDER_DISABLED (provider not enabled).
         HTTPException 404: DOCUMENT_NOT_FOUND / FILE_NOT_FOUND (source missing).
+        HTTPException 502: PROVIDER_AUTH_ERROR (upstream provider rejected the
+            configured credentials, HTTP 401/403).
         HTTPException 500: For any other failure.
     """
     logger.info(
@@ -129,6 +134,26 @@ async def adapt_document(
                 code=exc.code,
                 message=str(exc),
                 details={},
+            ),
+        )
+    except ProviderAuthError as exc:
+        # Upstream provider rejected our credentials (HTTP 401/403). This is a
+        # configuration/upstream fault, not an internal server error, so map it
+        # to 502 Bad Gateway with a clear French message and NO stack trace
+        # (logged as a concise warning in the service layer).
+        logger.warning(
+            f"Adaptation rejected (provider auth error): {str(exc)}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=ErrorResponse.create(
+                code=exc.code,
+                message=(
+                    "Le service d'IA a refusé les identifiants configurés. "
+                    "Veuillez vérifier la clé d'API du fournisseur ou "
+                    "réessayer avec un autre fournisseur."
+                ),
+                details={"provider_id": exc.provider_id},
             ),
         )
     except Exception as exc:

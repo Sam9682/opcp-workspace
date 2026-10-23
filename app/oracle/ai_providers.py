@@ -129,7 +129,7 @@ class KiroAIProvider(AIProvider):
             )
 
             try:
-                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=60.0)
+                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=3600.0)
             except asyncio.TimeoutError:
                 process.kill()
                 logger.error("Kiro CLI timeout after 60 seconds")
@@ -296,7 +296,7 @@ class OpenAIProvider(AIProvider):
                         "temperature": temperature,
                         "max_tokens": max_tokens
                     },
-                    timeout=60.0
+                    timeout=3600.0
                 )
                 
                 response.raise_for_status()

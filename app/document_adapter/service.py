@@ -37,6 +37,17 @@ from app.oracle.ai_providers import get_ai_provider
 from app.oracle.provider_config import is_provider_enabled
 from app.services.storage_service import storage_service
 
+# Upstream OpenAI-compatible auth/permission errors (401/403). Imported lazily
+# at call time (see _is_upstream_auth_error) is avoided here because the
+# ``openai`` package is already a hard dependency of the provider layer this
+# service calls; importing the typed classes up front keeps the mapping cheap.
+try:  # pragma: no cover - exercised indirectly; guard keeps import resilient.
+    from openai import AuthenticationError as _OpenAIAuthError
+    from openai import PermissionDeniedError as _OpenAIPermissionError
+except Exception:  # pragma: no cover - defensive: openai should be installed.
+    _OpenAIAuthError = ()  # type: ignore[assignment]
+    _OpenAIPermissionError = ()  # type: ignore[assignment]
+
 # Default generation parameters for adaptation. Adaptation rewrites can be long,
 # so a generous token budget is used; temperature is kept moderate for faithful
 # rewrites. These mirror the provider contract defaults used elsewhere.
@@ -46,6 +57,7 @@ _ADAPT_MAX_TOKENS = 4000
 __all__ = [
     "SourceNotFoundError",
     "ProviderDisabledError",
+    "ProviderAuthError",
     "UnsupportedSourceError",
     "DocumentAdapterService",
     "adapt_document",
@@ -79,6 +91,32 @@ class ProviderDisabledError(Exception):
         super().__init__(
             message
             or f"The AI provider '{provider_id}' is not enabled"
+        )
+
+
+class ProviderAuthError(Exception):
+    """Raised when the upstream AI provider rejects our credentials.
+
+    Covers an authentication (HTTP 401) or authorization/permission (HTTP 403)
+    failure returned by the configured provider endpoint (e.g. the OVH/Shai
+    ``AuthenticationError``: *"Your token is not allowed to perform the required
+    actions on any tenant"*). This is an upstream configuration fault, not a
+    bug in this service, so the router maps it to a clean ``502`` instead of a
+    ``500`` with a stack trace.
+
+    Carries a stable ``code`` and the originating ``provider_id``.
+    """
+
+    code: str = "PROVIDER_AUTH_ERROR"
+
+    def __init__(self, provider_id: str, message: Optional[str] = None) -> None:
+        self.provider_id = provider_id
+        super().__init__(
+            message
+            or (
+                f"Le fournisseur d'IA « {provider_id} » a refusé les "
+                f"identifiants configurés (authentification/autorisation)."
+            )
         )
 
 
@@ -149,6 +187,17 @@ class DocumentAdapterService:
                 temperature=_ADAPT_TEMPERATURE,
                 max_tokens=_ADAPT_MAX_TOKENS,
             )
+        except (_OpenAIAuthError, _OpenAIPermissionError) as exc:
+            # Upstream credential/authorization failure (HTTP 401/403): the
+            # provider endpoint rejected our token. This is a configuration
+            # fault, not a server bug — surface it as a typed error (mapped to
+            # 502 by the router) and log a concise warning WITHOUT a stack
+            # trace (the full traceback here is noise, not actionable).
+            logger.warning(
+                f"Adaptation rejected: provider '{provider_id}' refused the "
+                f"configured credentials (upstream {type(exc).__name__})."
+            )
+            raise ProviderAuthError(provider_id) from exc
         except Exception as exc:
             logger.error(f"Adaptation generation failed: {str(exc)}")
             raise
