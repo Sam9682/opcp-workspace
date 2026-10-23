@@ -45,6 +45,14 @@ class AdaptationRequest(BaseModel):
     ai_provider: Literal["shai", "kiro", "openai", "opcp_companion"] = Field(
         ..., description="AI provider used to perform the adaptation"
     )
+    additional_context: Optional[str] = Field(
+        default=None,
+        max_length=5000,
+        description=(
+            "Optional free-text instructions appended to the AI prompt to "
+            "further personalize the adaptation (max 5000 characters)"
+        ),
+    )
 
     @model_validator(mode="after")
     def _exactly_one_source(self) -> "AdaptationRequest":

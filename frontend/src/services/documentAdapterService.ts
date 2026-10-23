@@ -63,6 +63,11 @@ export interface AdaptationRequest {
   uploaded_filename?: string;
   audience_level: AudienceLevel;
   ai_provider: AIProviderId;
+  /**
+   * Optional free-text instructions appended to the AI prompt to further
+   * personalize the adaptation (max 5000 characters). Omitted when empty.
+   */
+  additional_context?: string;
 }
 
 /** The adaptation response returned by the adapt endpoint. */

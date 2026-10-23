@@ -108,3 +108,55 @@ def test_prompt_is_identical_regardless_of_source_text():
     prompt_a = build_adaptation_prompt(AudienceLevel.OPCP_EXPERT, "text A")
     prompt_b = build_adaptation_prompt(AudienceLevel.OPCP_EXPERT, "a completely different text B")
     assert prompt_a == prompt_b
+
+
+# ---------------------------------------------------------------------------
+# Optional additional_context is appended under a heading (append-to-prompt)
+# ---------------------------------------------------------------------------
+
+from app.document_adapter.prompts import ADDITIONAL_CONTEXT_HEADING
+
+
+@pytest.mark.parametrize("extra", [None, "", "   ", "\n\t "])
+def test_prompt_unchanged_when_additional_context_is_empty(extra):
+    """No/blank ``additional_context`` leaves the prompt byte-for-byte identical."""
+    baseline = build_adaptation_prompt(AudienceLevel.IT_BEGINNER, "source text")
+    with_extra = build_adaptation_prompt(
+        AudienceLevel.IT_BEGINNER, "source text", extra
+    )
+
+    assert with_extra == baseline
+    assert ADDITIONAL_CONTEXT_HEADING not in with_extra
+
+
+def test_prompt_includes_additional_context_and_heading_when_provided():
+    """A non-empty ``additional_context`` is appended under the heading."""
+    extra = "Focus on civil engineering applications."
+    prompt = build_adaptation_prompt(
+        AudienceLevel.INTERMEDIATE_A, "source text", extra
+    )
+
+    assert ADDITIONAL_CONTEXT_HEADING in prompt
+    assert extra in prompt
+    # The additional context comes after the rewrite directive.
+    assert prompt.index(REWRITE_DIRECTIVE) < prompt.index(extra)
+
+
+def test_additional_context_is_trimmed_before_appending():
+    """Surrounding whitespace is stripped from the appended context."""
+    prompt = build_adaptation_prompt(
+        AudienceLevel.OPCP_EXPERT, "source text", "  keep informal tone  "
+    )
+
+    assert "keep informal tone" in prompt
+    assert "  keep informal tone  " not in prompt
+
+
+def test_source_text_not_embedded_even_with_additional_context():
+    """The source text is still provider context, not part of the prompt."""
+    sentinel = "UNIQUE_SOURCE_SENTINEL_67890"
+    prompt = build_adaptation_prompt(
+        AudienceLevel.IT_BEGINNER, sentinel, "extra instructions"
+    )
+
+    assert sentinel not in prompt

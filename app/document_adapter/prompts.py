@@ -10,6 +10,8 @@ provider. The extracted source text is passed separately to the provider as
 returned prompt, keeping these helpers side-effect free and the source text
 untouched.
 """
+from typing import Optional
+
 from app.document_adapter.schemas import AudienceLevel
 
 # Per-audience instruction describing the reader's knowledge level and the
@@ -49,8 +51,19 @@ REWRITE_DIRECTIVE = (
     "audience. Return only the rewritten document."
 )
 
+# Heading introducing optional free-text instructions supplied by the requester
+# via the Document Adapter page. Appended after ``REWRITE_DIRECTIVE`` only when
+# a non-empty ``additional_context`` is provided.
+ADDITIONAL_CONTEXT_HEADING = (
+    "Additional context from the requester (apply these instructions):"
+)
 
-def build_adaptation_prompt(audience: AudienceLevel, source_text: str) -> str:
+
+def build_adaptation_prompt(
+    audience: AudienceLevel,
+    source_text: str,
+    additional_context: Optional[str] = None,
+) -> str:
     """Build the ``question`` text for an audience-tailored adaptation.
 
     Maps ``audience`` to its instruction and appends the rewrite directive. The
@@ -62,13 +75,23 @@ def build_adaptation_prompt(audience: AudienceLevel, source_text: str) -> str:
         audience: The target :class:`AudienceLevel` for the rewrite.
         source_text: The extracted source document text (passed to the provider
             as ``context``; unused in the returned prompt).
+        additional_context: Optional free-text instructions supplied by the
+            requester. When non-empty (after trimming), it is appended after the
+            rewrite directive under :data:`ADDITIONAL_CONTEXT_HEADING`. When
+            ``None`` or blank, the returned prompt is unchanged.
 
     Returns:
-        The prompt (``question``) string combining the audience instruction and
-        the rewrite directive.
+        The prompt (``question``) string combining the audience instruction, the
+        rewrite directive, and (when provided) the additional context.
 
     Raises:
         KeyError: If ``audience`` is not a recognized :class:`AudienceLevel`.
     """
     instruction = AUDIENCE_INSTRUCTIONS[audience]
-    return f"{instruction}\n\n{REWRITE_DIRECTIVE}"
+    prompt = f"{instruction}\n\n{REWRITE_DIRECTIVE}"
+
+    extra = (additional_context or "").strip()
+    if extra:
+        prompt = f"{prompt}\n\n{ADDITIONAL_CONTEXT_HEADING}\n{extra}"
+
+    return prompt

@@ -525,6 +525,11 @@ export const fr: TranslationDictionary = {
   'page.documentAdapter.title': 'Adaptateur de documents',
   'page.documentAdapter.section.source': 'Document source',
   'page.documentAdapter.section.audience': 'Public cible et IA',
+  'page.documentAdapter.section.context': 'Contexte personnel complémentaire',
+  'page.documentAdapter.context.help':
+    "Ajoutez des instructions supplémentaires pour personnaliser l'adaptation du cours (max 5000 caractères). Ce texte sera ajouté au prompt envoyé à l'IA.",
+  'page.documentAdapter.context.placeholder':
+    'Ex : Insister sur les applications en génie civil. Ajouter des exemples concrets liés à la mécanique des structures. Utiliser un ton plus informel…',
   'page.documentAdapter.section.generate': 'Génération et téléchargement',
   'page.documentAdapter.source.fromLibrary': 'Depuis la bibliothèque',
   'page.documentAdapter.source.fromUpload': 'Téléverser un fichier',
@@ -1038,6 +1043,11 @@ export const en: TranslationDictionary = {
   'page.documentAdapter.title': 'Document Adapter',
   'page.documentAdapter.section.source': 'Source document',
   'page.documentAdapter.section.audience': 'Target audience & AI',
+  'page.documentAdapter.section.context': 'Additional personal context',
+  'page.documentAdapter.context.help':
+    'Add extra instructions to personalize the course adaptation (max 5000 characters). This text is appended to the prompt sent to the AI.',
+  'page.documentAdapter.context.placeholder':
+    'E.g. Emphasize civil engineering applications. Add concrete examples related to structural mechanics. Use a more informal tone…',
   'page.documentAdapter.section.generate': 'Generation & download',
   'page.documentAdapter.source.fromLibrary': 'From library',
   'page.documentAdapter.source.fromUpload': 'Upload a file',

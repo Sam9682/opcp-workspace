@@ -81,6 +81,7 @@ const mockedExportAdapted = vi.mocked(documentAdapterService.exportAdapted);
 const FR = {
   sectionSource: 'Document source',
   sectionAudience: 'Public cible et IA',
+  sectionContext: 'Contexte personnel complémentaire',
   sectionGenerate: 'Génération et téléchargement',
   audienceBeginner: 'Débutant IT',
   sourceRequired: 'Veuillez sélectionner un document source.',
@@ -157,10 +158,11 @@ afterEach(() => {
 });
 
 // -----------------------------------------------------------------------------
-// Three-section order (Requirement 1.4)
+// Section order (Requirement 1.4): source, audience/provider, additional
+// context, then generate.
 // -----------------------------------------------------------------------------
-describe('three-section layout', () => {
-  it('renders source, then audience/provider, then generate sections in order', async () => {
+describe('section layout', () => {
+  it('renders source, audience/provider, context, then generate sections in order', async () => {
     renderPage();
     await waitForProvidersLoaded();
 
@@ -171,6 +173,7 @@ describe('three-section layout', () => {
     expect(headings).toEqual([
       FR.sectionSource,
       FR.sectionAudience,
+      FR.sectionContext,
       FR.sectionGenerate,
     ]);
   });
@@ -387,6 +390,81 @@ describe('download error path', () => {
         'guide.pdf',
         'it_beginner',
         'pdf',
+      );
+    });
+  });
+});
+
+// -----------------------------------------------------------------------------
+// Additional personal context field
+// -----------------------------------------------------------------------------
+describe('additional personal context', () => {
+  it('renders the context section with a 5000-char-capped textarea and a live counter', async () => {
+    renderPage();
+    await waitForProvidersLoaded();
+
+    // The section header renders (FR string).
+    expect(
+      screen.getByRole('heading', { level: 2, name: FR.sectionContext }),
+    ).toBeInTheDocument();
+
+    const textarea = screen.getByRole('textbox', {
+      name: FR.sectionContext,
+    }) as HTMLTextAreaElement;
+    expect(textarea).toHaveAttribute('maxlength', '5000');
+
+    // Counter starts at 0 / 5000 and updates as the Member types.
+    expect(screen.getByText('0 / 5000')).toBeInTheDocument();
+
+    await userEvent.type(textarea, 'Hello');
+    expect(textarea.value).toBe('Hello');
+    expect(screen.getByText('5 / 5000')).toBeInTheDocument();
+  });
+
+  it('sends the entered context as additional_context in the adapt request', async () => {
+    const doc = makePdfDocument('doc-1', 'guide.pdf');
+    mockedListDocuments.mockResolvedValue({ documents: [doc], total: 1 });
+
+    renderPage();
+    await waitForProvidersLoaded();
+
+    const select = await screen.findByRole('combobox', {
+      name: 'Depuis la bibliothèque',
+    });
+    await userEvent.selectOptions(select, 'doc-1');
+
+    const textarea = screen.getByRole('textbox', { name: FR.sectionContext });
+    await userEvent.type(textarea, 'Focus on civil engineering.');
+
+    await userEvent.click(screen.getByRole('button', { name: FR.generate }));
+
+    await waitFor(() => {
+      expect(mockedAdapt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          document_id: 'doc-1',
+          additional_context: 'Focus on civil engineering.',
+        }),
+      );
+    });
+  });
+
+  it('omits additional_context when the field is left empty', async () => {
+    const doc = makePdfDocument('doc-1', 'guide.pdf');
+    mockedListDocuments.mockResolvedValue({ documents: [doc], total: 1 });
+
+    renderPage();
+    await waitForProvidersLoaded();
+
+    const select = await screen.findByRole('combobox', {
+      name: 'Depuis la bibliothèque',
+    });
+    await userEvent.selectOptions(select, 'doc-1');
+
+    await userEvent.click(screen.getByRole('button', { name: FR.generate }));
+
+    await waitFor(() => {
+      expect(mockedAdapt).toHaveBeenCalledWith(
+        expect.objectContaining({ additional_context: undefined }),
       );
     });
   });

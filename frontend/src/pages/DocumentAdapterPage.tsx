@@ -34,6 +34,13 @@ import { useTranslation } from '../hooks/useLanguage';
 /** How the Member provides the source document. */
 type SourceMode = 'library' | 'upload';
 
+/**
+ * Maximum length of the optional "Additional personal context" field. Enforced
+ * both here (textarea maxLength + counter) and in the backend AdaptationRequest
+ * schema.
+ */
+const ADDITIONAL_CONTEXT_MAX_LENGTH = 5000;
+
 export const DocumentAdapterPage = () => {
   const { t } = useTranslation();
 
@@ -70,6 +77,12 @@ export const DocumentAdapterPage = () => {
   const [audienceLevel, setAudienceLevel] = useState<AudienceLevel>(
     'it_beginner',
   );
+
+  // Optional free-text instructions appended to the AI prompt to further
+  // personalize the adaptation. Capped at 5000 characters in the UI (and the
+  // backend schema); empty means "no additional context" and is omitted from
+  // the request.
+  const [additionalContext, setAdditionalContext] = useState<string>('');
 
   // Enabled AI providers and the currently selected provider id. The provider
   // list is loaded from the Oracle providers endpoint and filtered to the
@@ -258,16 +271,21 @@ export const DocumentAdapterPage = () => {
     }
     if (!providerId) return;
 
+    // The additional context is optional: send it only when non-empty.
+    const trimmedContext = additionalContext.trim();
+
     const request: AdaptationRequest = selectedDocumentSourceId
       ? {
           document_id: selectedDocumentSourceId,
           audience_level: audienceLevel,
           ai_provider: providerId,
+          additional_context: trimmedContext || undefined,
         }
       : {
           uploaded_filename: uploadedFilename,
           audience_level: audienceLevel,
           ai_provider: providerId,
+          additional_context: trimmedContext || undefined,
         };
 
     try {
@@ -489,7 +507,40 @@ export const DocumentAdapterPage = () => {
         </div>
       </section>
 
-      {/* ---- Section 3: Generation, preview & download (task 12.3) ----
+      {/* ---- Section 3: Additional personal context ----
+          An optional free-text field whose content is appended to the AI
+          prompt (capped at 5000 characters, with a live counter). Empty is
+          allowed; generation proceeds unchanged. */}
+      <section className="card p-6 mb-5">
+        <h2 className="text-lg font-semibold text-[#000E9C] mb-3">
+          {t('page.documentAdapter.section.context')}
+        </h2>
+
+        <p className="text-sm text-gray-600 mb-3">
+          {t('page.documentAdapter.context.help')}
+        </p>
+
+        <label className="block">
+          <span className="sr-only">
+            {t('page.documentAdapter.section.context')}
+          </span>
+          <textarea
+            value={additionalContext}
+            onChange={(e) => setAdditionalContext(e.target.value)}
+            maxLength={ADDITIONAL_CONTEXT_MAX_LENGTH}
+            rows={5}
+            placeholder={t('page.documentAdapter.context.placeholder')}
+            aria-label={t('page.documentAdapter.section.context')}
+            className="w-full px-3 py-2.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#4949FF] focus:border-transparent resize-y"
+          />
+        </label>
+
+        <p className="mt-1 text-xs text-gray-500 text-right">
+          {additionalContext.length} / {ADDITIONAL_CONTEXT_MAX_LENGTH}
+        </p>
+      </section>
+
+      {/* ---- Section 4: Generation, preview & download (task 12.3) ----
           Generate button (disabled while in flight or when source/provider
           prerequisites are missing), progress indicator, preview panel via
           MarkdownRenderer, copy action, and PDF/Word download actions.

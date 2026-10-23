@@ -235,6 +235,7 @@ def test_adapt_returns_adapted_content_with_mocked_provider(
                 "document_id": str(source_document.id),
                 "audience_level": "it_beginner",
                 "ai_provider": "shai",
+                "additional_context": "Insist on civil engineering applications.",
             },
             headers=member_headers,
         )
@@ -252,6 +253,8 @@ def test_adapt_returns_adapted_content_with_mocked_provider(
     mock_provider.query.assert_awaited_once()
     _, kwargs = mock_provider.query.await_args
     assert kwargs["context"] == "raw source text"
+    # The requester's additional context is appended to the prompt question.
+    assert "Insist on civil engineering applications." in kwargs["question"]
 
 
 # ---------------------------------------------------------------------------

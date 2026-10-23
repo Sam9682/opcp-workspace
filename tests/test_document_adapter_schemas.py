@@ -111,3 +111,55 @@ def test_invalid_audience_level_raises_validation_error():
             audience_level="expert_wizard",
             ai_provider="shai",
         )
+
+
+# ---------------------------------------------------------------------------
+# Optional additional_context field (max 5000 characters)
+# ---------------------------------------------------------------------------
+
+def test_additional_context_defaults_to_none_when_omitted():
+    """Omitting ``additional_context`` is valid and yields ``None``."""
+    req = AdaptationRequest(
+        uploaded_filename="source.pdf",
+        audience_level=AudienceLevel.IT_BEGINNER,
+        ai_provider="shai",
+    )
+
+    assert req.additional_context is None
+
+
+def test_additional_context_accepts_a_normal_string():
+    """A normal ``additional_context`` string is accepted verbatim."""
+    req = AdaptationRequest(
+        uploaded_filename="source.pdf",
+        audience_level=AudienceLevel.IT_BEGINNER,
+        ai_provider="shai",
+        additional_context="Focus on civil engineering examples.",
+    )
+
+    assert req.additional_context == "Focus on civil engineering examples."
+
+
+def test_additional_context_accepts_exactly_5000_characters():
+    """An ``additional_context`` of exactly 5000 characters is accepted."""
+    value = "x" * 5000
+    req = AdaptationRequest(
+        uploaded_filename="source.pdf",
+        audience_level=AudienceLevel.IT_BEGINNER,
+        ai_provider="shai",
+        additional_context=value,
+    )
+
+    assert req.additional_context == value
+    assert len(req.additional_context) == 5000
+
+
+def test_additional_context_rejects_more_than_5000_characters():
+    """An ``additional_context`` longer than 5000 characters is rejected."""
+    with pytest.raises(ValidationError):
+        AdaptationRequest(
+            uploaded_filename="source.pdf",
+            audience_level=AudienceLevel.IT_BEGINNER,
+            ai_provider="shai",
+            additional_context="x" * 5001,
+        )

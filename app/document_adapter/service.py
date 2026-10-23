@@ -132,7 +132,11 @@ class DocumentAdapterService:
         # then build the audience-specific prompt. The source text is passed to
         # the provider separately as ``context``.
         source_text = extract_text(file_bytes, document.mime_type)
-        question = build_adaptation_prompt(request.audience_level, source_text)
+        question = build_adaptation_prompt(
+            request.audience_level,
+            source_text,
+            request.additional_context,
+        )
 
         # Call the provider layer directly so this run is NOT persisted into the
         # Oracle Q&A history (unlike OracleService.ask_oracle).
