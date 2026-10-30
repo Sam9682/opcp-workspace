@@ -127,6 +127,6 @@ volumes:
 # "Loading module ... was blocked because of a disallowed MIME type (text/html)".
 # A per-deployment network name scopes DNS to this deployment only.
 networks:
-  shai-network:
+  opcp-workspace-network:
     driver: bridge
-    name: shai-network-${USER_ID:-1}
+    name: opcp-workspace-network-${USER_ID:-1}

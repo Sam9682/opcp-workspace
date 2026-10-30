@@ -29,6 +29,12 @@ http {
 
         client_max_body_size 100M;
 
+        # Raise backend proxy timeouts from the 60s default to 600s so long-running
+        # API calls (e.g. POST /api/document-adapter/adapt) can complete.
+        proxy_connect_timeout 600s;
+        proxy_send_timeout 600s;
+        proxy_read_timeout 600s;
+
         # Proxy API requests to backend
         location /api/ {
             add_header Access-Control-Allow-Origin https://ai-shai-web-interface.fr always;
