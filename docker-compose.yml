@@ -21,7 +21,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - shai-network
+      - opcp-workspace-network
 
   # SHAI Web Interface Application (Backend API)
   backend-component:
@@ -57,7 +57,7 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - shai-network
+      - opcp-workspace-network
 
   # One-off RAG document ingestion (run on demand via the "ingest" profile)
   ingest:
@@ -77,7 +77,7 @@ services:
         condition: service_healthy
     command: ["python", "-m", "scripts.ingest_embeddings"]
     networks:
-      - shai-network
+      - opcp-workspace-network
 
   # Frontend Application
   frontend:
@@ -91,7 +91,7 @@ services:
       - VITE_API_URL=/api
     restart: unless-stopped
     networks:
-      - shai-network
+      - opcp-workspace-network
 
   # Nginx Reverse Proxy
   frontend-component:
@@ -110,13 +110,13 @@ services:
       - HTTP_PORT=${HTTP_PORT:-6000}
       - HTTPS_PORT=${HTTPS_PORT:-6001}
     networks:
-      - shai-network
+      - opcp-workspace-network
 
 volumes:
   postgres_data:
   app_data:
 
-# The compose-internal alias "shai-network" is mapped to a Docker network whose
+# The compose-internal alias "opcp-workspace-network" is mapped to a Docker network whose
 # real name is unique per deployment (keyed on USER_ID). This isolation is
 # critical: multiple deployments run on the same host, and a shared fixed
 # network name made the Docker embedded DNS resolve service names like
