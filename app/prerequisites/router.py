@@ -516,6 +516,8 @@ def _credential_config_response(
             credential_id="",
             nova_endpoint="",
             ca_certificate="",
+            http_proxy="",
+            https_proxy="",
             secret_stored=False,
         )
 
@@ -524,6 +526,8 @@ def _credential_config_response(
         credential_id=config.credential_id,
         nova_endpoint=config.nova_endpoint,
         ca_certificate=config.ca_certificate or "",
+        http_proxy=config.http_proxy or "",
+        https_proxy=config.https_proxy or "",
         secret_stored=config.credential_secret_encrypted is not None,
     )
 
@@ -567,6 +571,10 @@ def _upsert_credential_config(
 
     # Non-secret CA certificate is always written; "" clears it.
     config.ca_certificate = payload.ca_certificate
+
+    # Non-secret proxy URLs are always written; "" clears them.
+    config.http_proxy = payload.http_proxy.strip()
+    config.https_proxy = payload.https_proxy.strip()
 
     # Encrypt and store the secret only when a value is provided; otherwise
     # preserve any previously stored secret.
@@ -747,6 +755,8 @@ async def retrieve_servers(
             secret=secret,
             nova_endpoint=config.nova_endpoint,
             ca_certificate=config.ca_certificate or "",
+            http_proxy=config.http_proxy or "",
+            https_proxy=config.https_proxy or "",
         )
     except OpenStackCACertificateError as e:
         # Non-secret, but the certificate content is never logged — only the

@@ -163,6 +163,8 @@ class CredentialConfigResponse(BaseModel):
     credential_id: str
     nova_endpoint: str
     ca_certificate: str = ""  # non-secret, always returned (empty when unset)
+    http_proxy: str = ""  # non-secret, empty when unset
+    https_proxy: str = ""  # non-secret, empty when unset
     secret_stored: bool
 
     model_config = ConfigDict(from_attributes=False)
@@ -180,6 +182,8 @@ class CredentialConfigSaveRequest(BaseModel):
     nova_endpoint: str = Field(min_length=1)
     credential_secret: Optional[str] = None  # omit to reuse stored secret
     ca_certificate: str = ""  # optional; empty => system trust store
+    http_proxy: str = ""  # optional; empty => no HTTP proxy
+    https_proxy: str = ""  # optional; empty => no HTTPS proxy
 
 
 class NovaServerSchema(BaseModel):

@@ -493,6 +493,8 @@ export const fr: TranslationDictionary = {
   'prereq.servers.credentials.novaEndpoint': 'Point d\'accès Nova',
   'prereq.servers.credentials.secretStored': 'Un secret est enregistré',
   'prereq.servers.credentials.caCertificate': 'Certificat CA (PEM)',
+  'prereq.servers.credentials.httpProxy': 'Proxy HTTP (http_proxy, optionnel)',
+  'prereq.servers.credentials.httpsProxy': 'Proxy HTTPS (https_proxy, optionnel)',
   // Retrieve action + loading.
   'prereq.servers.retrieve': 'RÉCUPÉRER LES INFOS',
   'prereq.servers.retrieving': 'Récupération en cours…',
@@ -1011,6 +1013,8 @@ export const en: TranslationDictionary = {
   'prereq.servers.credentials.novaEndpoint': 'Nova endpoint',
   'prereq.servers.credentials.secretStored': 'A secret is stored',
   'prereq.servers.credentials.caCertificate': 'CA certificate (PEM)',
+  'prereq.servers.credentials.httpProxy': 'HTTP proxy (http_proxy, optional)',
+  'prereq.servers.credentials.httpsProxy': 'HTTPS proxy (https_proxy, optional)',
   // Retrieve action + loading.
   'prereq.servers.retrieve': 'RETRIEVE INFO',
   'prereq.servers.retrieving': 'Retrieving…',

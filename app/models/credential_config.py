@@ -68,6 +68,17 @@ class CredentialConfig(Base):
         nullable=True
     )
 
+    # Optional outbound forward proxies for OpenStack calls (e.g.
+    # http://host:port/). NULL/empty means "no per-installation proxy".
+    http_proxy: Mapped[str | None] = mapped_column(
+        String(1000),
+        nullable=True
+    )
+    https_proxy: Mapped[str | None] = mapped_column(
+        String(1000),
+        nullable=True
+    )
+
     # Encrypted (Fernet) write-only secret; NULL when never provided.
     credential_secret_encrypted: Mapped[str | None] = mapped_column(
         Text,

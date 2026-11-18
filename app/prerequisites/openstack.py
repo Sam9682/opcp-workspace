@@ -31,13 +31,22 @@ from app.logging_config import logger
 _HTTP_TIMEOUT = 60.0
 
 
-def _resolve_proxy() -> str | None:
-    """Return the configured forward-proxy URL, or ``None`` for direct connection.
+def _resolve_proxy(
+    url: str = "",
+    http_proxy: str = "",
+    https_proxy: str = "",
+) -> str | None:
+    """Return the forward-proxy URL to use for ``url``, or ``None`` for direct.
 
-    Reads ``settings.OPENSTACK_HTTPS_PROXY`` and treats empty/whitespace-only
-    values as "no proxy configured". Returning ``None`` yields httpx's default
-    (no explicit proxy), preserving today's direct-connection behaviour.
+    The per-installation proxy matching the target URL scheme wins
+    (``https_proxy`` for ``https://`` URLs, ``http_proxy`` for ``http://``).
+    When it is empty, falls back to ``settings.OPENSTACK_HTTPS_PROXY``.
+    Empty/whitespace-only values mean "no proxy configured"; returning ``None``
+    yields httpx's default (no explicit proxy).
     """
+    specific = http_proxy if url.lower().startswith("http://") else https_proxy
+    if specific and specific.strip():
+        return specific.strip()
     proxy = settings.OPENSTACK_HTTPS_PROXY
     return proxy if proxy and proxy.strip() else None
 
@@ -126,6 +135,8 @@ class OpenStackProxy:
         secret: str,
         nova_endpoint: str,
         ca_certificate: str = "",
+        http_proxy: str = "",
+        https_proxy: str = "",
     ) -> List[NovaServerDTO]:
         """Obtain a token then list servers, chaining the two OpenStack calls.
 
@@ -140,8 +151,12 @@ class OpenStackProxy:
         verify TLS identically.
         """
         verify = _build_verify(ca_certificate)
-        token = await self._get_token(auth_url, credential_id, secret, verify)
-        return await self._list_servers(nova_endpoint, token, verify)
+        token = await self._get_token(
+            auth_url, credential_id, secret, verify, http_proxy, https_proxy
+        )
+        return await self._list_servers(
+            nova_endpoint, token, verify, http_proxy, https_proxy
+        )
 
     async def _get_token(
         self,
@@ -149,6 +164,8 @@ class OpenStackProxy:
         credential_id: str,
         secret: str,
         verify: ssl.SSLContext | bool = True,
+        http_proxy: str = "",
+        https_proxy: str = "",
     ) -> str:
         """POST the Keystone application-credential body and return the token.
 
@@ -171,7 +188,7 @@ class OpenStackProxy:
         }
 
         client_kwargs: dict = {"verify": verify}
-        proxy = _resolve_proxy()
+        proxy = _resolve_proxy(url, http_proxy, https_proxy)
         if proxy is not None:
             client_kwargs["proxy"] = proxy
 
@@ -226,6 +243,8 @@ class OpenStackProxy:
         nova_endpoint: str,
         token: str,
         verify: ssl.SSLContext | bool = True,
+        http_proxy: str = "",
+        https_proxy: str = "",
     ) -> List[NovaServerDTO]:
         """GET the Nova server list and map each server to id/name/status.
 
@@ -236,7 +255,7 @@ class OpenStackProxy:
         url = f"{nova_endpoint.rstrip('/')}/servers"
 
         client_kwargs: dict = {"verify": verify}
-        proxy = _resolve_proxy()
+        proxy = _resolve_proxy(url, http_proxy, https_proxy)
         if proxy is not None:
             client_kwargs["proxy"] = proxy
 

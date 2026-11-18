@@ -163,6 +163,8 @@ interface CredentialsFormState {
   credentialSecret: string;
   novaEndpoint: string;
   caCertificate: string;
+  httpProxy: string;
+  httpsProxy: string;
 }
 
 /**
@@ -197,6 +199,8 @@ const toSaveRequest = (state: CredentialsFormState): SaveCredentialConfigRequest
     credential_id: state.credentialId.trim(),
     nova_endpoint: state.novaEndpoint.trim(),
     ca_certificate: state.caCertificate.trim(),
+    http_proxy: state.httpProxy.trim(),
+    https_proxy: state.httpsProxy.trim(),
   };
   if (state.credentialSecret.trim()) {
     request.credential_secret = state.credentialSecret;
@@ -296,6 +300,8 @@ const CredentialsForm = ({ installationId }: CredentialsFormProps) => {
     credentialSecret: '',
     novaEndpoint: '',
     caCertificate: '',
+    httpProxy: '',
+    httpsProxy: '',
   });
   const [secretStored, setSecretStored] = useState(false);
   const [validationKey, setValidationKey] = useState<CredentialsValidationKey | null>(
@@ -322,6 +328,8 @@ const CredentialsForm = ({ installationId }: CredentialsFormProps) => {
           credentialId: cfg.credential_id ?? '',
           novaEndpoint: cfg.nova_endpoint ?? '',
           caCertificate: cfg.ca_certificate ?? '',
+          httpProxy: cfg.http_proxy ?? '',
+          httpsProxy: cfg.https_proxy ?? '',
         }));
         setSecretStored(Boolean(cfg.secret_stored));
       })
@@ -395,6 +403,18 @@ const CredentialsForm = ({ installationId }: CredentialsFormProps) => {
           id: 'openstack-nova-endpoint',
           label: t('prereq.servers.credentials.novaEndpoint'),
           key: 'novaEndpoint' as const,
+          type: 'text',
+        },
+        {
+          id: 'openstack-http-proxy',
+          label: t('prereq.servers.credentials.httpProxy'),
+          key: 'httpProxy' as const,
+          type: 'text',
+        },
+        {
+          id: 'openstack-https-proxy',
+          label: t('prereq.servers.credentials.httpsProxy'),
+          key: 'httpsProxy' as const,
           type: 'text',
         },
       ] as const,

@@ -30,6 +30,9 @@ export interface CredentialConfig {
   credential_id: string;
   nova_endpoint: string;
   ca_certificate: string;
+  // Optional outbound forward proxies (empty when unset).
+  http_proxy?: string;
+  https_proxy?: string;
   secret_stored: boolean;
 }
 
@@ -44,6 +47,9 @@ export interface SaveCredentialConfigRequest {
   credential_secret?: string;
   // Optional; omitted/empty means the backend uses the system default trust store.
   ca_certificate?: string;
+  // Optional proxies for OpenStack API access; empty means no proxy.
+  http_proxy?: string;
+  https_proxy?: string;
 }
 
 /** A single Nova server as returned by the OpenStack proxy. */
