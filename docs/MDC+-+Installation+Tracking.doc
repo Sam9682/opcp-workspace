@@ -181,11 +181,11 @@ d of the content \*/ margin: 0; padding: 0; background: none; clear: both; 
 
 \} --\> 
 
-# MDC - Installation Tracking
+# MYCOMPANY - Installation Tracking
 
-# Installation Tracking =E2=80=93 Marocco DC
+# Installation Tracking =E2=80=93 COUNTRYco DC
 
-> **Project:** MDC  
+> **Project:** MYCOMPANY  
 **Deployment Type:** Stan= dalone   
 **Installation Date (planned):** September 202= 6, not fixed yet  
 **Lead Engineer:** \[Name\]  
@@ -226,7 +226,7 @@ Use this sheet to track the collection of the items defined in 00 CloudStore r= 
 
 | **Role** | **Hostname** | **IP Address** | **Node UUID** | **Status** | **Date Received** | **Comments** |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| Node | **cs01.opcp01-demo.mdc.ma**  |  |  | ✅ | 01 Sep 2026  |  |
+| Node | **cs01.opcp01-demo.MYCOMPANY.ma**  |  |  | ✅ | 01 Sep 2026  |  |
 
 #### In= gress VIP (customer) =E2=80=94 required
 
@@ -322,6 +322,6 @@ Not required for the CloudStore deployment, but should be filled with th= e cust
 
 | **Date** | **Author** | **Note** |
 | :-: | :-: | :-: |
-| 24/08/2026 | Slepetre | Filled in information for MDC. Under review by customer For your information, I have compiled a XLS file with most/all the = required information for CloudStore  |
+| 24/08/2026 | Slepetre | Filled in information for MYCOMPANY. Under review by customer For your information, I have compiled a XLS file with most/all the = required information for CloudStore  |
 
 

@@ -96,7 +96,7 @@ describe('vcfConfig content', () => {
     });
 
     it('sets vcf-mgmt-dns-zone exampleValue to the workbook value', () => {
-      expect(findRow(vcfConfig, 'vcf-mgmt-dns-zone')?.exampleValue).toBe('cs01.mdc.ma');
+      expect(findRow(vcfConfig, 'vcf-mgmt-dns-zone')?.exampleValue).toBe('cs01.MYCOMPANY.ma');
     });
 
     it('sets vcf-mgmt-master-password commentsHint with the @!#$%?^ charset note', () => {
