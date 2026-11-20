@@ -1,1 +1,1 @@
-./shared/deployApp.sh
+./ai-swautomorph--shared/deployApp.sh
