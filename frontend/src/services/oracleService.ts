@@ -54,6 +54,7 @@ export interface AvailableProvider {
   description: string;
   default: boolean;
   enabled: boolean;
+  model?: string | null;
 }
 
 interface AvailableProvidersResponse {
@@ -106,13 +107,18 @@ class OracleService {
         throw new Error('No response body');
       }
 
+      // SSE events can be split across network chunks (and so can multi-byte
+      // UTF-8 characters): keep the incomplete trailing line in a buffer and
+      // only parse complete lines, otherwise tokens are silently dropped.
+      let buffer = '';
       while (true) {
         const { done, value } = await reader.read();
-        
+
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {

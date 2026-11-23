@@ -18,6 +18,7 @@ from app.oracle.schemas import (
 )
 from app.oracle.service import OracleService
 from app.oracle.provider_config import get_enabled_map, is_provider_enabled
+from app.oracle.ai_providers import get_provider_models
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from app.middleware.rate_limit import limiter
@@ -202,6 +203,7 @@ async def get_available_providers(db: Session = Depends(get_db)):
     fournisseur ``shai`` est toujours activé.
     """
     enabled_map = get_enabled_map(db)
+    models = get_provider_models()
 
     provider_meta = [
         {
@@ -231,7 +233,11 @@ async def get_available_providers(db: Session = Depends(get_db)):
     ]
 
     providers = [
-        {**meta, "enabled": enabled_map.get(meta["id"], False)}
+        {
+            **meta,
+            "model": models.get(meta["id"]),
+            "enabled": enabled_map.get(meta["id"], False),
+        }
         for meta in provider_meta
     ]
 

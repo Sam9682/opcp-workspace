@@ -11,6 +11,7 @@ interface Message {
   content: string;
   timestamp: Date;
   provider?: string;
+  model?: string;
   processingTime?: number;
   sources?: Source[];
 }
@@ -127,7 +128,7 @@ export const OraclePage = () => {
           setMessages(prev =>
             prev.map(msg =>
               msg.id === assistantMessageId
-                ? { ...msg, provider: data.provider, processingTime: data.processing_time, sources: data.sources }
+                ? { ...msg, provider: data.provider, model: data.model, processingTime: data.processing_time, sources: data.sources }
                 : msg
             )
           );
@@ -202,9 +203,23 @@ export const OraclePage = () => {
               disabled={loading}
             >
               {enabledProviders.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+                <option key={p.id} value={p.id}>
+                  {p.model ? `${p.name} — ${p.model}` : p.name}
+                </option>
               ))}
             </select>
+            {enabledProviders.length > 0 && (
+              <ul className="mt-3 space-y-1 text-xs text-gray-600">
+                {enabledProviders.map((p) => (
+                  <li key={p.id} className={p.id === provider ? 'font-semibold text-[#000E9C]' : ''}>
+                    <span>{p.name}</span>
+                    {p.model && (
+                      <span className="block font-mono text-[11px] text-gray-500 break-all">{p.model}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="card p-4">
@@ -256,7 +271,8 @@ export const OraclePage = () => {
                     )}
                     {message.provider && (
                       <div className="text-xs mt-2 opacity-60">
-                        {message.provider} Â· {message.processingTime?.toFixed(2)}s
+                        {message.provider}
+                        {message.model ? ` (${message.model})` : ''} · {message.processingTime?.toFixed(2)}s
                       </div>
                     )}
                     {message.role === 'assistant' && message.sources?.length ? (
@@ -313,7 +329,7 @@ export const OraclePage = () => {
                 onClick={() => setShowHistory(false)}
                 className="text-gray-400 hover:text-gray-600 text-xl"
               >
-                Ã—
+                ×
               </button>
             </div>
             <div className="p-5 overflow-y-auto max-h-[60vh]">
@@ -330,7 +346,7 @@ export const OraclePage = () => {
                       <div className="text-sm font-medium text-gray-900 mb-1">{item.question}</div>
                       <div className="text-xs text-gray-600 line-clamp-2">{item.answer}</div>
                       <div className="text-xs text-gray-400 mt-2">
-                        {item.ai_provider} Â· {new Date(item.created_at).toLocaleString('fr-FR')}
+                        {item.ai_provider} · {new Date(item.created_at).toLocaleString('fr-FR')}
                       </div>
                     </div>
                   ))}

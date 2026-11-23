@@ -3,6 +3,7 @@ import asyncio
 import time
 import json
 import re
+from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any
 import httpx
@@ -28,6 +29,63 @@ Contexte :
 # relatif à la racine du projet (même convention que app.config, ex. DOCS_SEED_DIR).
 SHAI_SKILL_CONTEXT_PATH = "conf/shai_context.md"
 
+# Racine du projet (.../app/oracle/ai_providers.py -> .../), pour résoudre le
+# chemin relatif indépendamment du répertoire courant du processus.
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+# Longueur maximale des extraits (question / réponse) écrits dans les journaux.
+_LOG_PREVIEW_LEN = 200
+
+
+def _preview(text: Optional[str], limit: int = _LOG_PREVIEW_LEN) -> str:
+    """Extrait sur une ligne, tronqué, pour les journaux (jamais de secret)."""
+    if not text:
+        return ""
+    flat = " ".join(text.split())
+    return flat if len(flat) <= limit else flat[:limit] + "..."
+
+
+def _log_genai_request(provider: str, model: str, endpoint: str, question: str,
+                       prompt_chars: int, temperature: float, max_tokens: int,
+                       extra: str = "") -> None:
+    """Journalise l'envoi d'une requête vers un fournisseur GenAI."""
+    suffix = f" {extra}" if extra else ""
+    logger.info(
+        f"[GenAI] -> request provider={provider} model={model} endpoint={endpoint} "
+        f"temperature={temperature} max_tokens={max_tokens} "
+        f"prompt_chars={prompt_chars}{suffix} question=\"{_preview(question)}\""
+    )
+
+
+def _log_genai_response(provider: str, model: str, elapsed: float, answer: str,
+                        tokens_used: Any, extra: str = "") -> None:
+    """Journalise la réponse reçue d'un fournisseur GenAI."""
+    suffix = f" {extra}" if extra else ""
+    logger.info(
+        f"[GenAI] <- response provider={provider} model={model} "
+        f"elapsed={elapsed:.2f}s tokens_used={tokens_used} "
+        f"answer_chars={len(answer)} answer_lines={answer.count(chr(10)) + 1}"
+        f"{suffix} answer=\"{_preview(answer)}\""
+    )
+
+
+def _resolve_shai_context_path() -> Path:
+    """Chemin absolu du contexte Shai (relatif -> résolu depuis la racine projet)."""
+    path = Path(SHAI_SKILL_CONTEXT_PATH)
+    return path if path.is_absolute() else _PROJECT_ROOT / path
+
+
+def get_provider_models() -> Dict[str, str]:
+    """Modèle configuré pour chaque fournisseur (affiché sur la page /oracle)."""
+    return {
+        "shai": settings.SHAI_MODEL,
+        "kiro": "kiro-cli (modèle par défaut du CLI)",
+        "openai": settings.OPENAI_MODEL,
+        "opcp_companion": (
+            f"{settings.LLM_MODEL} (embedding : {settings.EMBEDDING_MODEL})"
+        ),
+    }
+
 
 def _load_shai_skill_context() -> Optional[str]:
     """Lit le contexte métier Shai depuis SHAI_SKILL_CONTEXT_PATH.
@@ -36,13 +94,21 @@ def _load_shai_skill_context() -> Optional[str]:
     Un fichier manquant ou illisible n'interrompt pas la requête : un
     avertissement est journalisé et None est retourné.
     """
+    path = _resolve_shai_context_path()
     try:
-        with open(SHAI_SKILL_CONTEXT_PATH, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8") as f:
             content = f.read().strip()
+        if content:
+            logger.info(
+                f"[GenAI] Contexte métier Shai chargé depuis {path} "
+                f"({len(content)} caractères)"
+            )
+        else:
+            logger.info(f"[GenAI] Contexte métier Shai vide ({path}), ignoré")
         return content or None
     except OSError as e:
         logger.warning(
-            f"Contexte métier Shai indisponible ({SHAI_SKILL_CONTEXT_PATH}) : "
+            f"Contexte métier Shai indisponible ({path}) : "
             f"{str(e)}. Poursuite sans le contexte métier."
         )
         return None
@@ -120,6 +186,11 @@ class KiroAIProvider(AIProvider):
             # Check if kiro-cli is authenticated, if not skip authentication for now
             # The CLI should work without authentication for basic queries
             
+            _log_genai_request(
+                "kiro", "kiro-cli", "local subprocess", question, len(prompt),
+                temperature, max_tokens, extra=f"has_context={bool(context)}",
+            )
+
             # Execute kiro-cli chat command with timeout
             process = await asyncio.create_subprocess_exec(
                 'kiro-cli', 'chat', '--no-interactive', '--trust-all-tools', prompt,
@@ -160,12 +231,15 @@ class KiroAIProvider(AIProvider):
                 raise Exception("Kiro CLI n'a pas retourné de réponse")
 
             processing_time = time.time() - start_time
+            tokens_used = len(answer.split())  # Approximation
+            _log_genai_response("kiro", "kiro-cli", processing_time, answer, tokens_used)
 
             return {
                 "answer": answer,
                 "processing_time": processing_time,
-                "tokens_used": len(answer.split()),  # Approximation
-                "provider": "kiro"
+                "tokens_used": tokens_used,
+                "provider": "kiro",
+                "model": "kiro-cli",
             }
 
         except Exception as e:
@@ -219,6 +293,15 @@ class ShaiAIProvider(AIProvider):
 
             client = self._get_client()
 
+            _log_genai_request(
+                "shai", settings.SHAI_MODEL, settings.SHAI_API_URL, question,
+                len(prompt), temperature, max_tokens,
+                extra=(
+                    f"skill_context={'yes' if skill_context else 'NO'}"
+                    f"({len(skill_context or '')} chars) has_context={bool(context)}"
+                ),
+            )
+
             # The blocking OpenAI-compatible call is offloaded to a worker thread
             # so it never blocks the event loop (same pattern as OpcpCompanion).
             response = await asyncio.to_thread(
@@ -243,16 +326,25 @@ class ShaiAIProvider(AIProvider):
                     tokens_used = total
 
             processing_time = time.time() - start_time
+            finish_reason = getattr(response.choices[0], "finish_reason", None)
+            _log_genai_response(
+                "shai", settings.SHAI_MODEL, processing_time, answer, tokens_used,
+                extra=f"finish_reason={finish_reason}",
+            )
 
             return {
                 "answer": answer,
                 "processing_time": processing_time,
                 "tokens_used": tokens_used,
-                "provider": "shai"
+                "provider": "shai",
+                "model": settings.SHAI_MODEL,
             }
 
         except Exception as e:
-            logger.error(f"Shai AI query failed: {str(e)}")
+            logger.error(
+                f"[GenAI] Shai AI query failed after {time.time() - start_time:.2f}s "
+                f"(model={settings.SHAI_MODEL}): {str(e)}"
+            )
             raise
 
 
@@ -283,6 +375,12 @@ class OpenAIProvider(AIProvider):
                 messages.append({"role": "system", "content": context})
             messages.append({"role": "user", "content": question})
             
+            _log_genai_request(
+                "openai", self.model, self.api_url, question,
+                sum(len(m["content"]) for m in messages), temperature, max_tokens,
+                extra=f"has_context={bool(context)}",
+            )
+
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     self.api_url,
@@ -306,12 +404,14 @@ class OpenAIProvider(AIProvider):
                 tokens_used = data["usage"]["total_tokens"]
                 
                 processing_time = time.time() - start_time
-                
+                _log_genai_response("openai", self.model, processing_time, answer, tokens_used)
+
                 return {
                     "answer": answer,
                     "processing_time": processing_time,
                     "tokens_used": tokens_used,
-                    "provider": "openai"
+                    "provider": "openai",
+                    "model": self.model,
                 }
                 
         except httpx.HTTPStatusError as e:
@@ -545,6 +645,12 @@ class OpcpCompanionProvider(AIProvider):
                 "Configuration manquante : LLM_TOKEN (ou OVH_AI_TOKEN de repli) est requis pour la génération OPCP Companion."
             )
 
+        logger.info(
+            f"[GenAI] -> OPCP Companion pipeline start "
+            f"embed_model={self.embedding_model} llm_model={self.llm_model} "
+            f"top_k={self.top_k} question=\"{_preview(question)}\""
+        )
+
         # 1. Embedding de la question (appel OVH) — Req 5.2
         try:
             embed_client = self._get_embed_client()
@@ -607,6 +713,16 @@ class OpcpCompanionProvider(AIProvider):
 
         # 3. Assemblage du contexte et génération de la réponse (appel OVH) — Req 5.2
         context_str = self._build_context(chunks)
+        logger.info(
+            f"[GenAI] OPCP Companion retrieved {len(chunks)} chunk(s): "
+            + ", ".join(
+                f"{c['title']}#{c['chunk_index']}({c['similarity']})" for c in chunks
+            )
+        )
+        _log_genai_request(
+            "opcp_companion", self.llm_model, self.llm_endpoint, question,
+            len(context_str) + len(question), temperature, max_tokens,
+        )
         try:
             llm_client = self._get_llm_client()
             response = await asyncio.to_thread(
@@ -635,11 +751,17 @@ class OpcpCompanionProvider(AIProvider):
             if total is not None:
                 tokens_used = total
 
+        processing_time = max(0.0, time.time() - start_time)
+        _log_genai_response(
+            "opcp_companion", self.llm_model, processing_time, answer, tokens_used
+        )
+
         return {
             "answer": answer,
-            "processing_time": max(0.0, time.time() - start_time),
+            "processing_time": processing_time,
             "tokens_used": tokens_used,
             "provider": "opcp_companion",
+            "model": self.llm_model,
             "sources": self._chunks_to_sources(chunks),
         }
 

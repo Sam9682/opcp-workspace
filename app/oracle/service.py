@@ -14,6 +14,7 @@ from app.oracle.schemas import (
 )
 from app.logging_config import logger
 import json
+import re
 
 
 class OracleService:
@@ -27,9 +28,13 @@ class OracleService:
     ) -> OracleResponse:
         """Ask a question to the Oracle"""
         try:
+            logger.info(
+                f"[GenAI] Oracle request provider={query.ai_provider} "
+                f"user_id={user_id} question_chars={len(query.question)}"
+            )
             # Get AI provider
             provider = get_ai_provider(query.ai_provider)
-            
+
             # Query the AI
             result = await provider.query(
                 question=query.question,
@@ -82,9 +87,13 @@ class OracleService:
         full_answer = ""
         
         try:
+            logger.info(
+                f"[GenAI] Oracle stream request provider={query.ai_provider} "
+                f"user_id={user_id} question_chars={len(query.question)}"
+            )
             # Get AI provider
             provider = get_ai_provider(query.ai_provider)
-            
+
             # Query the AI and get full response
             result = await provider.query(
                 question=query.question,
@@ -94,13 +103,20 @@ class OracleService:
             )
             
             full_answer = result["answer"]
-            
-            # Stream the answer word by word for better UX
-            words = full_answer.split()
-            for i, word in enumerate(words):
+            logger.info(
+                f"[GenAI] Streaming answer to client provider={result['provider']} "
+                f"model={result.get('model')} chars={len(full_answer)}"
+            )
+
+            # Stream the answer word by word for better UX. Each token keeps its
+            # trailing whitespace (newlines included) so the Markdown structure
+            # of the answer (paragraphs, lists, code blocks) survives streaming;
+            # str.split() used to collapse every newline into a single space.
+            tokens = re.findall(r'\s+|\S+\s*', full_answer)
+            for i, token in enumerate(tokens):
                 yield {
                     'type': 'token',
-                    'content': word + (' ' if i < len(words) - 1 else ''),
+                    'content': token,
                     'index': i
                 }
             
@@ -125,6 +141,7 @@ class OracleService:
                 'type': 'done',
                 'id': db_query.id,
                 'provider': result["provider"],
+                'model': result.get("model"),
                 'processing_time': processing_time,
                 'tokens_used': result.get("tokens_used"),
                 'sources': result.get("sources")
