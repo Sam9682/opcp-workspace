@@ -230,9 +230,11 @@ export const networkChecklistConfig: QuestionFormConfig = {
         {
           id: 'nc-cp-switch-10g',
           questionPrimary:
-            '(Control plane/OOB) Is client switch capable of 10G ? 1 port for each controller',
+            '(Control plane/OOB) Is client switch capable of 10G (or 25G) ? 1 OOB uplink port for each controller + 1 port 1 GbE for each controller BMC',
           mandatory: true,
           exampleValue: 'YES – NO',
+          commentsHint:
+            'Each OPCP Core Controller has an OOB uplink (25 GbE or 10 GbE, negotiated at 10 GbE according to your upstream capabilities) and a 1 GbE BMC port, both connected to the Customer Upstream OOB Network. NANOPOD: 1 controller; STANDARD POD / FABRIC: 3 controllers.',
         },
         {
           id: 'nc-cp-sfp-lc-fiber',
@@ -258,7 +260,18 @@ export const networkChecklistConfig: QuestionFormConfig = {
           questionPrimary:
             'What is the planned IP addressing for control plane? (subnet, gateway, VLAN ID)',
           mandatory: true,
-          exampleValue: 'YES – NO',
+          exampleValue: '172.30.1.0/24 | GW 172.30.1.254 | VLAN 801',
+          commentsHint:
+            'Dedicated subnet for OPCP on the administration (OOB) network, with a default gateway; hosts the controllers and their VIP. Frozen at deployment (not editable after installation). Addressing and naming plan are entirely up to you.',
+        },
+        {
+          id: 'nc-cp-l2-untagged-vip',
+          questionPrimary:
+            '(Control plane/OOB) STANDARD POD / FABRIC: is a common untagged L2 network available between the 3 controllers (required for the shared VIP) ?',
+          mandatory: true,
+          exampleValue: 'YES – NO – N/A (NANOPOD)',
+          commentsHint:
+            'The VIP shared by the three OPCP Core Controllers requires a common untagged L2 network between them. A prolonged outage of the customer OOB network can disrupt administrator access to the control plane (inter-controller data goes through the OPCP network). Not applicable to NANOPOD (single controller).',
         },
         {
           id: 'nc-cp-mono-mode-transceivers',
@@ -277,6 +290,18 @@ export const networkChecklistConfig: QuestionFormConfig = {
           questionPrimary:
             '(Data plane/Edge) Edge switches use 40/100G ports only, do client switches support these ?',
           mandatory: true,
+          exampleValue: 'YES – NO',
+          commentsHint:
+            'Fiber uplinks to the Customer Upstream Data Network run at 40 GbE or 100 GbE, according to the optics validated by OVHcloud. They are carried by the ToR switches in NANOPOD, and by the edge switches in STANDARD POD / FABRIC.',
+        },
+        {
+          id: 'nc-dp-mtu-9000',
+          questionPrimary:
+            '(Data plane/Edge) Can upstream ports facing the OPCP uplinks be configured with MTU 9000 (jumbo frames) ?',
+          mandatory: true,
+          exampleValue: 'YES – NO',
+          commentsHint:
+            'OPCP customer-facing ports and uplinks use MTU 9000 (inter-switch links 9100). The MTU 1500 shown by Neutron is informational only. On bare-metal nodes, set MTU 9000 on the OS interfaces and prevent cloud-init / DHCP from restoring 1500 after reboot.',
         },
         {
           id: 'nc-dp-physical-ports',
@@ -297,6 +322,17 @@ export const networkChecklistConfig: QuestionFormConfig = {
           id: 'nc-dp-edge-trunk-ports',
           questionPrimary: '(Data plane/Edge) How many edge trunk ports do you plan to use ?',
           mandatory: false,
+          commentsHint:
+            'Access mode: one Neutron network per uplink port, presented as standard 802.1Q. Trunk mode: several Neutron networks on one port, each with its own VLAN ID assigned by OPCP.',
+        },
+        {
+          id: 'nc-dp-qinq',
+          questionPrimary:
+            '(Data plane/Edge) Trunk mode: will instances push their own VLAN tags (802.1ad / QinQ) ? If yes, does the upstream equipment support double encapsulation ?',
+          mandatory: false,
+          exampleValue: 'YES – NO – N/A',
+          commentsHint:
+            'In trunk mode the OPCP VLAN tag is preserved end to end: 802.1Q if instances do not use VLANs inside the Neutron network, 802.1ad (QinQ) if they do (OPCP VLAN = outer tag). Both can coexist on the same trunk.',
         },
       ],
     },
@@ -331,14 +367,27 @@ export const networkChecklistConfig: QuestionFormConfig = {
         {
           id: 'nc-svc-dns-servers',
           questionPrimary: 'Are internal DNS servers available? If yes, provide IPs.',
-          mandatory: true,
+          mandatory: false,
           exampleValue: 'YES - NO',
+          commentsHint:
+            'Resolvers are only needed if OPCP must resolve external FQDNs (S3, LDAP…). Flow: OPCP administration network -> DNS resolvers, UDP/53. Can be omitted for an air-gapped platform configured by IP.',
+        },
+        {
+          id: 'nc-svc-dns-delegation',
+          questionPrimary:
+            'Which domain will be delegated to OPCP, and can a forwarder be created from internal DNS resolvers to the OPCP VIP ?',
+          mandatory: true,
+          exampleValue: 'opcp01.exemple.com',
+          commentsHint:
+            'Every query for *.<domain> must be forwarded to the OPCP VIP. Flow: customer DNS resolvers -> OPCP VIP, UDP/53 and TCP/53. Not editable after installation.',
         },
         {
           id: 'nc-svc-ntp-servers',
           questionPrimary: 'Are NTP servers available? If yes, provide IPs or FQDNs.',
           mandatory: true,
           exampleValue: 'YES - NO',
+          commentsHint:
+            'Mandatory: at least one NTP source reachable from the OPCP administration network. Flow: UDP/123.',
         },
         {
           id: 'nc-svc-http-proxy',
@@ -346,6 +395,8 @@ export const networkChecklistConfig: QuestionFormConfig = {
             'Is an HTTP/HTTPS proxy required for Internet access? If yes, provide address.',
           mandatory: false,
           exampleValue: 'YES - NO',
+          commentsHint:
+            'OPCP is designed to run air-gapped: none of the platform flows requires Internet access; the only expected destinations are services of your own information system.',
         },
         {
           id: 'nc-svc-firewall-rules',
@@ -353,12 +404,16 @@ export const networkChecklistConfig: QuestionFormConfig = {
             'Are firewall rules to be opened for platform operation? (flow list provided by OVHcloud)',
           mandatory: true,
           exampleValue: 'YES - NO',
+          commentsHint:
+            'All flows are on the OPCP administration (OOB) network, none on the data network. Inbound: admin workstations / users -> controllers VIP TCP/443 (OpenStack API, Horizon); admins -> controllers TCP/22 SSH (Self-managed only). Outbound from the OPCP administration network: NTP UDP/123 (mandatory); DNS UDP/53 (optional); Syslog UDP/514 or TCP/514 (recommended); S3 backup TCP/443 (recommended); S3 long-term metrics TCP/443 (recommended); LDAPS TCP/636 (optional).',
         },
         {
           id: 'nc-svc-syslog-server',
           questionPrimary: 'Is a centralized Syslog server available to receive logs?',
           mandatory: false,
           exampleValue: 'YES - NO',
+          commentsHint:
+            'Recommended. Flow: UDP/514 or TCP/514. Without external syslog, logs are kept locally for 7 days / 50 GB max.',
         },
       ],
     },
@@ -368,9 +423,21 @@ export const networkChecklistConfig: QuestionFormConfig = {
       rows: [
         {
           id: 'nc-service-model-type',
-          questionPrimary: 'Airgap or Fully managed ? If managed, fill in OVH IPsec sheet',
+          questionPrimary:
+            'Self-managed or Fully managed by OVHcloud ? If Fully managed, fill in the IPsec interconnection (Core Control Plane tab)',
           mandatory: true,
-          exampleValue: 'Managed - AirGap',
+          exampleValue: 'Self-managed - Fully managed by OVHcloud',
+          commentsHint:
+            'Self-managed: the customer operates the Core (control plane) and application services, no interconnection to OVHcloud. Fully managed by OVHcloud: OVHcloud operates them remotely through a site-to-site IPsec tunnel. In both modes, what you deploy on top of OPCP (VMs, containers, bare-metal, data) remains your responsibility.',
+        },
+        {
+          id: 'nc-service-topology',
+          questionPrimary:
+            'Which deployment topology ? NANOPOD / STANDARD POD / FABRIC',
+          mandatory: true,
+          exampleValue: 'NANOPOD - STANDARD POD - FABRIC',
+          commentsHint:
+            'NANOPOD: 1 controller (no control plane redundancy), 1 rack, no spine/edge, data network on the ToR. STANDARD POD: 3 controllers, 2 to 3 racks, edges only. FABRIC: 3 controllers, 3 to 10 racks (more with megaspine), spine + edges. In STANDARD POD / FABRIC the data network is configured on the edges.',
         },
       ],
     },
@@ -379,114 +446,135 @@ export const networkChecklistConfig: QuestionFormConfig = {
 
 // Core Control Plane — OPCP control plane service configuration (interconnection,
 // network, certificates, NTP/DNS, syslog, backup, metrics, LDAP, SSH).
-// Rebuilt from the customer Core Control Plane workbook. Each service is one
-// row: `questionPrimary` = Service, `commentsHint` = Description, and
-// `questionSecondary` = Direction (omitted when the workbook lists "N/A").
-// Every service is marked mandatory. Row ids are stable and unique page-wide.
+// Aligned with the OVHcloud guide "Prérequis techniques pour le déploiement"
+// (docs.ovhcloud.com/fr/guides/hosted-private-cloud/opcp/opcp-prerequisites,
+// last updated 2026-11-23). Each prerequisite is one row: `questionPrimary` =
+// prerequisite, `questionSecondary` = associated network flow (omitted when the
+// configuration is local to OPCP), `commentsHint` = description, items to
+// provide and whether it is editable after installation, `exampleValue` = the
+// guide's generic example. `mandatory` follows the guide's "Obligatoire"
+// column ("Optionnel" / "Optionnel mais recommandé" = false). Row ids are
+// stable (persistence keys) and unique page-wide.
 // Formerly "OPCP Core".
 export const coreControlPlaneConfig: QuestionFormConfig = {
   sections: [
     {
       id: 'ccp-services',
-      title: 'Services du Control Plan',
+      title: 'Services du Control Plane',
       rows: [
         {
           id: 'ccp-managed-interconnection',
-          questionPrimary: 'Managed OPCP interconnection',
+          questionPrimary: 'Managed OPCP interconnection (IPsec)',
+          questionSecondary: 'Customer IPsec endpoint <-> OVHcloud — site-to-site IPsec tunnel',
           mandatory: true,
           commentsHint:
-            'For Managed OPCP customer only | Used to prepare the interconnection for remote deployment and remote support. For IKE (Phase 1) and IPsec (Phase 2) parameters, our default values are: IKEv2 only (IKEv1 not supported), PSK authentication, AES-256 encryption, SHA-256 hash, DH group 14, PFS enabled. For AES-256 encryption, we do not recommend going below it for security reasons.',
+            'Mandatory in "Fully managed by OVHcloud" mode only (N/A in Self-managed). Used for remote operation and support. Provide: public IP of your IPsec endpoint, client-side subnet exposed in the tunnel (typically the OPCP administration subnet), pre-shared key (PSK) — sent over a secure channel agreed with your OVHcloud contact. Default parameters: IKEv2 only (IKEv1 not supported), PSK authentication, AES-256, SHA-256, DH group 14, PFS enabled. Going below AES-256 is discouraged (last resort only). Editable after installation: Yes.',
+          exampleValue: 'Endpoint 203.0.113.10 | Subnet 172.30.1.0/24 | PSK via secure channel',
         },
         {
           id: 'ccp-network',
-          questionPrimary: 'Network',
+          questionPrimary: 'Administration network',
           mandatory: true,
           commentsHint:
-            'Definition of the management network used by OPCP - Subnet | VLAN ID | Default gateway.',
-          exampleValue: '172.18.0.5 | 801 | GW 172.18.0.254'        
+            'Management (OOB) network on which OPCP is placed. Hosts the controllers and their VIP, and is the source of outbound flows to your internal services (NTP, DNS, syslog, S3, LDAP). Provide: subnet allocated to OPCP + default gateway. Editable after installation: NO — frozen at deployment, any change requires a full reinstall.',
+          exampleValue: '172.30.1.0/24 | GW 172.30.1.254',
         },
         {
           id: 'ccp-variables',
-          questionPrimary: 'Variables',
+          questionPrimary: 'OPCP environment variables',
           mandatory: true,
           commentsHint:
-            'Variables included in OPCP that will be used in several places (Netbox, logging, monitoring, etc)',
+            'Variables uniquely identifying the deployment, reused in Netbox, logs, monitoring and other components. Provide a value for each: env (logical environment id), region (region / geographic zone code), stage (lifecycle stage), org (owning organization), site (physical site id), location (precise location within the site). No naming convention is imposed by OVHcloud. Editable after installation: NO.',
+          exampleValue: 'env=opcp-prod-0 | region=par | stage=prod | org=mycompany | site=dc1 | location=R11-1',
         },
         {
           id: 'ccp-server-names',
-          questionPrimary: 'Server name(s)',
+          questionPrimary: 'Controller names & IP addresses (+ VIP)',
           mandatory: true,
-          commentsHint: '- OPCP control plane server name + IP address + VIP',
+          commentsHint:
+            'For each OPCP Core Controller: hostname (FQDN or short name) + IP address on the administration network. In 3-controller configuration (STANDARD POD / FABRIC), also provide the VIP shared by the three nodes — single entry point to the OpenStack APIs and Horizon (NANOPOD: 1 controller, no VIP). Editable after installation: NO.',
+          exampleValue:
+            'opcp-controller-0 / 172.30.1.10 | opcp-controller-1 / 172.30.1.11 | opcp-controller-2 / 172.30.1.12 | VIP opcp.exemple.com / 172.30.1.5',
         },
         {
           id: 'ccp-certificates',
           questionPrimary: 'Certificates',
           mandatory: true,
           commentsHint:
-            "Select one option among: (1) We use a generated Self Signed CA -> Nothing to provide; Rotation managed via CertManager. (2) We use an intermediate CA from the customer side -> Must provide the intermediate CA; must provide the intermediate CA private key; rotation managed via CertManager. (3) Use of Let's Encrypt -> Must provide method and related requirements. (4) Customer to provide all the required certificates (about 20): Manually -> must provide certificates & private keys (??? list of certificates to provide); Via a PKI -> can be done, but not implemented yet on our side.",
+            'Valid TLS certificates for OPCP interfaces (OpenStack API, Horizon, internal services). Choose one option before deployment: (A — recommended) Intermediate CA provided by the customer, derived from your internal PKI -> provide the intermediate CA certificate + its private key (over a secure channel); rotation of issued certificates managed by CertManager. (B) Self-signed CA generated by OPCP -> nothing to provide, rotation managed by CertManager; the OPCP root certificate must then be distributed to your clients to avoid security warnings. Any public exposure of OPCP must go through a reverse proxy (out of OPCP scope) carrying public certificates. Editable after installation: Yes.',
+          exampleValue: 'Option A (customer intermediate CA) – Option B (OPCP self-signed CA)',
         },
         {
           id: 'ccp-ntp',
           questionPrimary: 'NTP',
-          questionSecondary: 'OPCP Control plane MNGT -> Customer NTP',
+          questionSecondary: 'OPCP administration network -> Customer NTP servers — UDP/123',
           mandatory: true,
           commentsHint:
-            'To be able to connect to an external NTP service: NTP IP Address(es) or DNS name(s) if resolved by DNS service configured.',
+            'Reliable time source required by all components (log consistency, certificate validity, quorum election…). Provide one or more NTP server IP addresses, or DNS names if DNS resolution is configured. Open UDP/123 from the OPCP administration network. Editable after installation: Yes.',
+          exampleValue: '172.30.1.200 / ntp1.exemple.com, 172.30.1.201 / ntp2.exemple.com',
         },
         {
           id: 'ccp-dns',
-          questionPrimary: 'DNS',
-          questionSecondary: 'Customer DNS Servers -> OPCP MNGT zone',
+          questionPrimary: 'DNS — domain delegation',
+          questionSecondary: 'Customer DNS resolvers -> OPCP VIP — UDP/53 + TCP/53',
           mandatory: true,
           commentsHint:
-            'Domain name to define + MP: Create forward to that domain. Send to the above IP',
+            'OPCP exposes its interfaces through FQDNs under a domain delegated to it. Provide the domain name allocated to this OPCP platform, and create a forwarder from your internal DNS resolvers to the OPCP VIP so that every query for *.<domain> is resolved by OPCP. Editable after installation: NO (the forwarder can be adapted as long as FQDNs remain stable).',
+          exampleValue: 'opcp01.exemple.com',
         },
         {
           id: 'ccp-dns-resolvers',
-          questionPrimary: 'DNS resolvers',
-          questionSecondary: 'OPCP Control plane MNGT -> Customer DNS resolvers',
-          mandatory: true,
+          questionPrimary: 'DNS resolvers — external resolution',
+          questionSecondary: 'OPCP administration network -> Customer DNS resolvers — UDP/53',
+          mandatory: false,
           commentsHint:
-            'OPCP need to resolve external domains (for S3 connection, for example) - IP Address. Only if customer needs external dependencies for S3 connection / LDAP…',
+            'Optional. Only needed if OPCP must resolve external FQDNs (S3 endpoint for backup / long-term metrics, LDAP directory…). Provide the IP address of one or more resolvers. Can be omitted for a strictly air-gapped platform configured by IP. Editable after installation: Yes.',
+          exampleValue: '172.30.1.100, 172.30.1.101',
         },
         {
           id: 'ccp-syslog-servers',
-          questionPrimary: 'Syslog servers',
-          questionSecondary: 'OPCP Control plane MNGT -> Customer Syslog',
-          mandatory: true,
+          questionPrimary: 'Syslog — log centralization',
+          questionSecondary: 'OPCP administration network -> Customer Syslog — UDP/514 or TCP/514',
+          mandatory: false,
           commentsHint:
-            'Centralize all the logs from OPCP: IP Address, Port, Protocol TCP or UDP. For long time retention, otherwise default to local storage: 7 days / 50 GB max.',
+            'Optional but recommended. Provide: syslog server IP address or FQDN, listening port, protocol (TCP or UDP). Without external syslog, logs are kept locally with a default retention of 7 days and 50 GB max (oldest logs deleted beyond that) — configure an external syslog for any longer compliance retention. Editable after installation: Yes.',
+          exampleValue: '172.30.1.250 | 514 | UDP',
         },
         {
           id: 'ccp-backup',
-          questionPrimary: 'Backup',
-          questionSecondary: 'OPCP Control plane MNGT -> Customer S3',
-          mandatory: true,
+          questionPrimary: 'Backup — S3 endpoint',
+          questionSecondary: 'OPCP administration network -> Customer S3 — TCP/443',
+          mandatory: false,
           commentsHint:
-            'To be able to perform backups of the infrastructure - S3 endpoint - access Key - private key - bucket name - region name',
+            'Optional but very strongly recommended for production: without external backup there is no restore mechanism after a major incident. Backs up infrastructure state (configurations, control plane state, metadata). Provide: S3 endpoint, access key, secret key (over a secure channel), two DISTINCT bucket names — one for Velero backups (persistent volumes, PV) and one for CNPG backups (databases, DB); Velero rejects a bucket that also holds DB backups and its backup storage location stays "Unavailable" — and the S3 region name. Editable after installation: Yes.',
+          exampleValue:
+            's3.exemple.com:443 | PV bucket opcp01-backup-pv-dc1 | DB bucket opcp01-backup-db-dc1 | region paris',
         },
         {
           id: 'ccp-long-term-metrics',
-          questionPrimary: 'Long term storage metrics',
-          questionSecondary: 'OPCP Control plane MNGT -> Customer S3',
-          mandatory: true,
+          questionPrimary: 'Long-term metrics storage — S3 endpoint',
+          questionSecondary: 'OPCP administration network -> Customer S3 — TCP/443',
+          mandatory: false,
           commentsHint:
-            'To be able to store long term metrics - S3 endpoint - access Key - private key - bucket name - region name',
+            'Optional but recommended. Keeps platform metrics beyond the local retention window. Provide: S3 endpoint, access key, secret key, bucket name dedicated to metrics (must be distinct from the backup buckets), region name. The same S3 endpoint and credentials as for backup can be reused, with a different bucket. Editable after installation: Yes.',
+          exampleValue: 's3.exemple.com:443 | bucket opcp01-metrics-dc1 | region paris',
         },
         {
           id: 'ccp-ldap',
           questionPrimary: 'LDAP',
-          questionSecondary: 'OPCP Control plane MNGT -> Customer AD',
-          mandatory: true,
+          questionSecondary: 'OPCP administration network -> Customer AD / IdP — TCP/636 (LDAPS)',
+          mandatory: false,
           commentsHint:
-            'Centralize user access across all OPCP Keycloak - IP of the AD Servers - Port',
+            'Optional. Identity federation of the OPCP embedded Keycloak with your corporate directory (Active Directory or other LDAP server). Provide: IP addresses or FQDNs of the LDAP servers + listening port (typically 636 for LDAPS). Without federation, users are managed directly in the embedded Keycloak. Editable after installation: Yes.',
+          exampleValue: 'ldap.exemple.com, 10.3.0.5, 10.3.0.6 | 636',
         },
         {
           id: 'ccp-ssh-public-key',
           questionPrimary: 'SSH public key',
-          mandatory: true,
+          mandatory: false,
           commentsHint:
-            "Used to give access to opcp controller's after bootstrap. In managed mode provide customer access to: opcp-cli, opcp-diag.",
+            "Optional but recommended. One or more customer administrators' SSH public keys, used to access the OPCP controllers after bootstrap (opcp-cli, opcp-diag). In Fully managed mode, it gives the customer access to the administration tools in addition to OVHcloud teams. If none is provided, a new SSH key pair is generated during deployment. Editable after installation: Yes.",
+          exampleValue: 'ssh-ed25519 AAAA… admin@mycompany',
         },
       ],
     },
