@@ -436,7 +436,7 @@ export const DocumentAdapterPage = () => {
       </section>
 
       {/* ---- Section 2: Audience & AI provider selection (task 12.2) ----
-          Renders the four AudienceLevel options in progression order
+          Renders the three AudienceLevel options in progression order
           (default it_beginner, Requirement 3.3) and the enabled-provider
           dropdown preselected per the default-flag rule (Correctness
           Property 5). When no enabled provider exists, the no-provider message
@@ -446,7 +446,7 @@ export const DocumentAdapterPage = () => {
           {t('page.documentAdapter.section.audience')}
         </h2>
 
-        {/* Audience level: four options in progression order (Requirement 3.1,
+        {/* Audience level: three options in progression order (Requirement 3.1,
             3.2, 3.3). */}
         <fieldset className="mb-5">
           <legend className="text-sm font-medium text-gray-700 mb-2">
@@ -477,7 +477,7 @@ export const DocumentAdapterPage = () => {
         <div>
           <label className="block">
             <span className="text-sm font-medium text-gray-700 mb-1 block">
-              {t('page.documentAdapter.section.audience')}
+              {t('page.documentAdapter.provider.label')}
             </span>
             {loadingProviders ? (
               <p className="text-sm text-gray-600">
@@ -493,12 +493,12 @@ export const DocumentAdapterPage = () => {
                 onChange={(e) =>
                   setProviderId(e.target.value as AIProviderId)
                 }
-                aria-label={t('page.documentAdapter.section.audience')}
+                aria-label={t('page.documentAdapter.provider.label')}
                 className="w-full px-3 py-2.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#4949FF] focus:border-transparent"
               >
                 {enabledProviders.map((provider) => (
                   <option key={provider.id} value={provider.id}>
-                    {provider.name}
+                    {provider.model ? `${provider.name} — ${provider.model}` : provider.name}
                   </option>
                 ))}
               </select>

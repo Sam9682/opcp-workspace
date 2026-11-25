@@ -16,19 +16,17 @@ import type { AIProviderId } from './oracleService';
  * without that prefix, consistent with `documentService` and `oracleService`.
  */
 
-/** One of the four fixed target audience profiles, in progression order. */
+/** One of the three fixed target audience profiles, in progression order. */
 export type AudienceLevel =
+  | 'non_it_beginner'
   | 'it_beginner'
-  | 'intermediate_a'
-  | 'intermediate_b'
-  | 'opcp_expert';
+  | 'it_expert';
 
-/** The four audience levels in progression order (beginner -> OPCP expert). */
+/** The three audience levels in progression order (non-IT beginner -> IT expert). */
 export const AUDIENCE_LEVELS: readonly AudienceLevel[] = [
+  'non_it_beginner',
   'it_beginner',
-  'intermediate_a',
-  'intermediate_b',
-  'opcp_expert',
+  'it_expert',
 ] as const;
 
 /** Supported export formats. */

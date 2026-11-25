@@ -11,17 +11,16 @@ from pydantic import BaseModel, Field, model_validator
 
 
 class AudienceLevel(str, enum.Enum):
-    """Four fixed target audience profiles, ordered as a progression from
-    IT beginner to On-Prem Cloud Platform (OPCP) expert.
+    """Three fixed target audience profiles, ordered as a progression from
+    non-IT beginner (sales, admin...) to IT expert.
 
     The ordering of the members encodes the progression; the backend uses the
     enum value to select the prompt instruction while the frontend supplies the
     human-readable labels.
     """
+    NON_IT_BEGINNER = "non_it_beginner"
     IT_BEGINNER = "it_beginner"
-    INTERMEDIATE_A = "intermediate_a"
-    INTERMEDIATE_B = "intermediate_b"
-    OPCP_EXPERT = "opcp_expert"
+    IT_EXPERT = "it_expert"
 
 
 class AdaptationRequest(BaseModel):

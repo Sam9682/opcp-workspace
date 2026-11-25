@@ -2,7 +2,7 @@
 
 Spec: .kiro/specs/document-audience-adapter (task 3.2)
 
-Validates Requirement 3.1: the adapter maps each of the four AudienceLevel
+Validates Requirement 3.1: the adapter maps each of the three AudienceLevel
 values to an audience-specific instruction.
 Validates Requirement 3.2: the built prompt reflects the selected audience
 level's instruction (the progression from IT beginner to OPCP expert).
@@ -99,14 +99,14 @@ def test_source_text_is_not_mutated():
     """``build_adaptation_prompt`` leaves the input source text unchanged."""
     source = "original source content that must stay intact"
     original_copy = str(source)
-    build_adaptation_prompt(AudienceLevel.INTERMEDIATE_B, source)
+    build_adaptation_prompt(AudienceLevel.IT_EXPERT, source)
     assert source == original_copy
 
 
 def test_prompt_is_identical_regardless_of_source_text():
     """For a fixed level, the prompt does not depend on the source text."""
-    prompt_a = build_adaptation_prompt(AudienceLevel.OPCP_EXPERT, "text A")
-    prompt_b = build_adaptation_prompt(AudienceLevel.OPCP_EXPERT, "a completely different text B")
+    prompt_a = build_adaptation_prompt(AudienceLevel.IT_EXPERT, "text A")
+    prompt_b = build_adaptation_prompt(AudienceLevel.IT_EXPERT, "a completely different text B")
     assert prompt_a == prompt_b
 
 
@@ -133,7 +133,7 @@ def test_prompt_includes_additional_context_and_heading_when_provided():
     """A non-empty ``additional_context`` is appended under the heading."""
     extra = "Focus on civil engineering applications."
     prompt = build_adaptation_prompt(
-        AudienceLevel.INTERMEDIATE_A, "source text", extra
+        AudienceLevel.NON_IT_BEGINNER, "source text", extra
     )
 
     assert ADDITIONAL_CONTEXT_HEADING in prompt
@@ -145,7 +145,7 @@ def test_prompt_includes_additional_context_and_heading_when_provided():
 def test_additional_context_is_trimmed_before_appending():
     """Surrounding whitespace is stripped from the appended context."""
     prompt = build_adaptation_prompt(
-        AudienceLevel.OPCP_EXPERT, "source text", "  keep informal tone  "
+        AudienceLevel.IT_EXPERT, "source text", "  keep informal tone  "
     )
 
     assert "keep informal tone" in prompt

@@ -178,7 +178,7 @@ def test_adapt_provider_disabled_rejected(client, member_headers, source_documen
         ADAPT_URL,
         json={
             "document_id": str(source_document.id),
-            "audience_level": "intermediate_a",
+            "audience_level": "non_it_beginner",
             "ai_provider": "openai",
         },
         headers=member_headers,
@@ -268,7 +268,7 @@ def test_export_pdf_returns_file_with_encoded_filename(client, member_headers):
         json={
             "adapted_content": "The adapted content body.",
             "source_name": "Network Guide.pdf",
-            "audience_level": "opcp_expert",
+            "audience_level": "it_expert",
             "format": "pdf",
         },
         headers=member_headers,
@@ -281,7 +281,7 @@ def test_export_pdf_returns_file_with_encoded_filename(client, member_headers):
     assert "attachment" in disposition
     # Filename encodes the sanitized source stem and the audience level value.
     assert "Network_Guide" in disposition
-    assert "opcp_expert" in disposition
+    assert "it_expert" in disposition
     assert disposition.rstrip('"').endswith(".pdf")
 
     # A real PDF byte stream is returned.
@@ -295,7 +295,7 @@ def test_export_docx_returns_file_with_encoded_filename(client, member_headers):
         json={
             "adapted_content": "The adapted content body.",
             "source_name": "Network Guide.pdf",
-            "audience_level": "intermediate_b",
+            "audience_level": "it_expert",
             "format": "docx",
         },
         headers=member_headers,
@@ -309,5 +309,5 @@ def test_export_docx_returns_file_with_encoded_filename(client, member_headers):
     disposition = response.headers["content-disposition"]
     assert "attachment" in disposition
     assert "Network_Guide" in disposition
-    assert "intermediate_b" in disposition
+    assert "it_expert" in disposition
     assert disposition.rstrip('"').endswith(".docx")

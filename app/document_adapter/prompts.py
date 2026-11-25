@@ -15,30 +15,26 @@ from typing import Optional
 from app.document_adapter.schemas import AudienceLevel
 
 # Per-audience instruction describing the reader's knowledge level and the
-# desired tone/depth of the rewrite. Ordered as a progression from IT beginner
-# to On-Prem Cloud Platform (OPCP) expert (see design "Prompt construction").
+# desired tone/depth of the rewrite. Ordered as a progression from non-IT
+# beginner (sales, admin...) to IT expert.
 AUDIENCE_INSTRUCTIONS: dict[AudienceLevel, str] = {
+    AudienceLevel.NON_IT_BEGINNER: (
+        "Rewrite this document for a non-IT reader (for example sales or "
+        "administrative staff). Assume no technical background: avoid jargon, "
+        "explain every technical term and acronym in plain language, use "
+        "everyday analogies, and focus on what things are for and why they "
+        "matter rather than how they work."
+    ),
     AudienceLevel.IT_BEGINNER: (
         "Rewrite this document for an IT beginner. Explain foundational terms, "
         "avoid jargon, and define every acronym on first use. Prefer short "
         "sentences, concrete examples, and a patient, welcoming tone."
     ),
-    AudienceLevel.INTERMEDIATE_A: (
-        "Rewrite this document for a reader with general IT literacy. You may "
-        "assume familiarity with common computing concepts, but keep any "
-        "cloud and platform specifics clearly explained."
-    ),
-    AudienceLevel.INTERMEDIATE_B: (
-        "Rewrite this document for a reader who is comfortable with cloud "
-        "concepts. Focus on the On-Prem Cloud Platform (OPCP) specifics and "
-        "assume general cloud familiarity so you can move faster through the "
-        "basics."
-    ),
-    AudienceLevel.OPCP_EXPERT: (
-        "Rewrite this document for an On-Prem Cloud Platform (OPCP) expert. Be "
-        "concise and assume deep OPCP expertise. Emphasize edge cases, "
-        "operational detail, and precise technical nuance; omit introductory "
-        "explanations."
+    AudienceLevel.IT_EXPERT: (
+        "Rewrite this document for an IT expert. Be concise and assume deep "
+        "technical expertise, including cloud and On-Prem Cloud Platform (OPCP) "
+        "concepts. Emphasize edge cases, operational detail, and precise "
+        "technical nuance; omit introductory explanations."
     ),
 }
 

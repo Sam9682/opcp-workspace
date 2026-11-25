@@ -2,9 +2,8 @@
 
 Spec: .kiro/specs/document-audience-adapter (task 1.1)
 
-Validates Requirement 3.1: the adapter presents exactly four AudienceLevel
-values (``it_beginner``, ``intermediate_a``, ``intermediate_b``,
-``opcp_expert``) and the request carries the selected level.
+Validates Requirement 3.1: the adapter presents exactly three AudienceLevel
+values (``non_it_beginner``, ``it_beginner``, ``it_expert``) and the request carries the selected level.
 Validates Requirement 5.1: the AdaptationRequest references exactly one source
 (either a library ``document_id`` or an ``uploaded_filename``), the audience
 level, and the AI provider.
@@ -40,13 +39,13 @@ def test_uploaded_filename_only_is_valid():
     """A request with only ``uploaded_filename`` passes validation."""
     req = AdaptationRequest(
         uploaded_filename="stored-source.pdf",
-        audience_level=AudienceLevel.OPCP_EXPERT,
+        audience_level=AudienceLevel.IT_EXPERT,
         ai_provider="openai",
     )
 
     assert req.uploaded_filename == "stored-source.pdf"
     assert req.document_id is None
-    assert req.audience_level == AudienceLevel.OPCP_EXPERT
+    assert req.audience_level == AudienceLevel.IT_EXPERT
 
 
 def test_both_sources_present_raises_validation_error():
@@ -55,7 +54,7 @@ def test_both_sources_present_raises_validation_error():
         AdaptationRequest(
             document_id=uuid.uuid4(),
             uploaded_filename="stored-source.pdf",
-            audience_level=AudienceLevel.INTERMEDIATE_A,
+            audience_level=AudienceLevel.NON_IT_BEGINNER,
             ai_provider="kiro",
         )
 
@@ -66,7 +65,7 @@ def test_neither_source_present_raises_validation_error():
     """Providing neither source reference is rejected."""
     with pytest.raises(ValidationError) as exc_info:
         AdaptationRequest(
-            audience_level=AudienceLevel.INTERMEDIATE_B,
+            audience_level=AudienceLevel.IT_EXPERT,
             ai_provider="opcp_companion",
         )
 
@@ -74,15 +73,15 @@ def test_neither_source_present_raises_validation_error():
 
 
 # ---------------------------------------------------------------------------
-# Enum parsing for all four audience values (Requirement 3.1)
+# Enum parsing for all three audience values (Requirement 3.1)
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize(
     "raw_value",
-    ["it_beginner", "intermediate_a", "intermediate_b", "opcp_expert"],
+    ["non_it_beginner", "it_beginner", "it_expert"],
 )
 def test_audience_level_parses_each_value(raw_value):
-    """Each of the four audience string values parses into the enum member."""
+    """Each of the three audience string values parses into the enum member."""
     req = AdaptationRequest(
         uploaded_filename="source.docx",
         audience_level=raw_value,
@@ -93,13 +92,12 @@ def test_audience_level_parses_each_value(raw_value):
     assert req.audience_level.value == raw_value
 
 
-def test_audience_level_enum_has_exactly_four_values_in_progression_order():
-    """The enum defines exactly the four expected values in progression order."""
+def test_audience_level_enum_has_exactly_three_values_in_progression_order():
+    """The enum defines exactly the three expected values in progression order."""
     assert [level.value for level in AudienceLevel] == [
+        "non_it_beginner",
         "it_beginner",
-        "intermediate_a",
-        "intermediate_b",
-        "opcp_expert",
+        "it_expert",
     ]
 
 

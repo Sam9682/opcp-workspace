@@ -11,8 +11,8 @@ import {
 // Feature: document-audience-adapter, Property 3: Every audience level has a
 // readable label in every language
 //
-// For every AudienceLevel value (it_beginner, intermediate_a, intermediate_b,
-// opcp_expert) and every supported language (fr, en), resolving its audience
+// For every AudienceLevel value (non_it_beginner, it_beginner,
+// it_expert) and every supported language (fr, en), resolving its audience
 // label yields a non-empty string.
 //
 // The labels live as i18n keys `page.documentAdapter.audience.{level}` in both

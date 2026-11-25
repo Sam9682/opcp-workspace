@@ -56,10 +56,9 @@ vi.mock('../services/documentAdapterService', () => ({
   // mocked service object, so the page's `AUDIENCE_LEVELS`, `isSupportedSourceType`
   // behave normally while `documentAdapterService.adapt` is a spy.
   AUDIENCE_LEVELS: [
+    'non_it_beginner',
     'it_beginner',
-    'intermediate_a',
-    'intermediate_b',
-    'opcp_expert',
+    'it_expert',
   ],
   isSupportedSourceType: (mimeType: string) =>
     [
@@ -293,14 +292,14 @@ describe('Feature: document-audience-adapter, Property 4: The provider dropdown 
               await screen.findByText('No AI provider available.');
               expect(
                 screen.queryByRole('combobox', {
-                  name: 'Target audience & AI',
+                  name: 'Agentic AI & LLM model',
                 }),
               ).toBeNull();
               return;
             }
 
             const select = await screen.findByRole('combobox', {
-              name: 'Target audience & AI',
+              name: 'Agentic AI & LLM model',
             });
             const options = within(select).getAllByRole(
               'option',
@@ -353,7 +352,7 @@ describe('Feature: document-audience-adapter, Property 5: The default-flagged en
             renderPage();
 
             const select = (await screen.findByRole('combobox', {
-              name: 'Target audience & AI',
+              name: 'Agentic AI & LLM model',
             })) as HTMLSelectElement;
 
             const enabled = providers.filter((p) => p.enabled);

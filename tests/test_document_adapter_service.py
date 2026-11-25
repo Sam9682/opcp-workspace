@@ -100,7 +100,7 @@ async def test_adapt_raises_provider_disabled_when_provider_not_enabled():
     db = _make_db_with_document(document)
     request = AdaptationRequest(
         document_id=document.id,
-        audience_level=AudienceLevel.INTERMEDIATE_A,
+        audience_level=AudienceLevel.NON_IT_BEGINNER,
         ai_provider="openai",
     )
 
@@ -125,7 +125,7 @@ async def test_adapt_raises_source_not_found_for_missing_library_document():
     db = _make_db_with_document(None)  # query returns no row
     request = AdaptationRequest(
         document_id=uuid4(),
-        audience_level=AudienceLevel.OPCP_EXPERT,
+        audience_level=AudienceLevel.IT_EXPERT,
         ai_provider="kiro",
     )
 
@@ -143,7 +143,7 @@ async def test_adapt_raises_source_not_found_when_stored_file_missing():
     db = _make_db_with_document(document)
     request = AdaptationRequest(
         document_id=document.id,
-        audience_level=AudienceLevel.INTERMEDIATE_B,
+        audience_level=AudienceLevel.IT_EXPERT,
         ai_provider="shai",
     )
 

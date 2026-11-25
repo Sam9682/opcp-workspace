@@ -114,8 +114,8 @@ def build_export_filename(
     - ``audience_level``: the enum value (e.g. ``it_beginner``).
     - ``ext``: ``pdf`` or ``docx`` (defaults to ``pdf`` for unknown formats).
 
-    Example: ``Network Guide.pdf`` + ``opcp_expert`` + ``pdf`` ->
-    ``Network_Guide__opcp_expert.pdf``.
+    Example: ``Network Guide.pdf`` + ``it_expert`` + ``pdf`` ->
+    ``Network_Guide__it_expert.pdf``.
     """
     stem = _sanitize_source_stem(source_name)
     audience_value = audience.value if isinstance(audience, AudienceLevel) else str(audience)

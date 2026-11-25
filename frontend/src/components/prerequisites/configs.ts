@@ -1358,7 +1358,7 @@ export const opcpContextConfig: ContextConfig = {
         },
         {
           id: "ctx-contact-client",
-          title: "Client : MYCOMPANY COUNTRY",
+          title: "Client :",
           rows: [
             { id: "ctx-contact-client-name", label: "Nom", defaultValue: "" },
             {

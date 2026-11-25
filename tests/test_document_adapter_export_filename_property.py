@@ -13,7 +13,7 @@ For any source name and any ``AudienceLevel``, ``build_export_filename``
 - ends with the extension matching the requested format (pdf/docx).
 
 The test uses Hypothesis to generate arbitrary source-name strings and samples
-over the four ``AudienceLevel`` values and both export formats.
+over the three ``AudienceLevel`` values and both export formats.
 """
 import re
 
