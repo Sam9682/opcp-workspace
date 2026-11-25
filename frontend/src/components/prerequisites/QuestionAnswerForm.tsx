@@ -1,24 +1,28 @@
-import { useEffect, useState } from 'react';
-import { PREREQ_MARKERS } from './types';
-import type { QuestionFormConfig } from './types';
-import { useTranslation } from '../../hooks/useLanguage';
-import { authService } from '../../services/authService';
-import { prerequisitesService } from '../../services/prerequisitesService';
-import { buildVcfDomainJson, type VcfDomain } from './vcfDomainTemplates';
+import { useEffect, useState } from "react";
+import { PREREQ_MARKERS } from "./types";
+import type { QuestionFormConfig } from "./types";
+import { useTranslation } from "../../hooks/useLanguage";
+import { authService } from "../../services/authService";
+import { prerequisitesService } from "../../services/prerequisitesService";
+import { buildVcfDomainJson, type VcfDomain } from "./vcfDomainTemplates";
 
 // Slug of the VCF checklist tab. The two "generate domain JSON" download
 // buttons are surfaced only on this form.
-const VCF_SLUG = 'vcf';
+const VCF_SLUG = "vcf";
 
 /**
  * Trigger a browser download of `content` as a file named `filename`.
  * Uses an object URL + synthetic anchor click, which is the portable way to
  * offer a client-generated file for download without a server round-trip.
  */
-const downloadTextFile = (filename: string, content: string, mimeType: string) => {
+const downloadTextFile = (
+  filename: string,
+  content: string,
+  mimeType: string,
+) => {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
+  const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = filename;
   document.body.appendChild(anchor);
@@ -37,14 +41,19 @@ interface QuestionAnswerFormProps {
    * `embedded` drops the outer card and `<h1>` so the form can be hosted
    * inside another container (e.g. a tab panel that already provides both).
    */
-  variant?: 'card' | 'embedded';
+  variant?: "card" | "embedded";
+  /**
+   * When true the whole form is greyed out and every input/button disabled
+   * (e.g. the matching use case is answered "No" in the OPCP Context tab).
+   */
+  disabled?: boolean;
 }
 
 const FIELD_CLASS =
-  'w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#4949FF] focus:border-transparent';
+  "w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#4949FF] focus:border-transparent";
 
 const READONLY_FIELD_CLASS =
-  'w-full px-3 py-2 border border-gray-200 rounded text-sm bg-gray-100 text-gray-600 cursor-not-allowed';
+  "w-full px-3 py-2 border border-gray-200 rounded text-sm bg-gray-100 text-gray-600 cursor-not-allowed";
 
 /**
  * Visible key mapping the mandatory/optional markers to their icon + label so
@@ -56,14 +65,16 @@ const MarkerLegend = () => {
     <div className="mb-6 rounded border border-gray-200 bg-gray-50 p-3">
       <span className="mr-3 text-sm font-medium text-gray-700">Légende :</span>
       <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1">
-        {(Object.keys(PREREQ_MARKERS) as (keyof typeof PREREQ_MARKERS)[]).map((key) => (
-          <span key={key} className="text-sm text-gray-700">
-            <span aria-hidden="true" className="mr-1">
-              {PREREQ_MARKERS[key].icon}
+        {(Object.keys(PREREQ_MARKERS) as (keyof typeof PREREQ_MARKERS)[]).map(
+          (key) => (
+            <span key={key} className="text-sm text-gray-700">
+              <span aria-hidden="true" className="mr-1">
+                {PREREQ_MARKERS[key].icon}
+              </span>
+              {t(PREREQ_MARKERS[key].labelKey)}
             </span>
-            {t(PREREQ_MARKERS[key].labelKey)}
-          </span>
-        ))}
+          ),
+        )}
       </div>
     </div>
   );
@@ -84,10 +95,11 @@ export const QuestionAnswerForm = ({
   slug,
   title,
   config,
-  variant = 'card',
+  variant = "card",
+  disabled = false,
 }: QuestionAnswerFormProps) => {
   const { t } = useTranslation();
-  const canAnswer = authService.isAuthenticated();
+  const canAnswer = authService.isAuthenticated() && !disabled;
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [errorRowIds, setErrorRowIds] = useState<Set<string>>(new Set());
   const [loadError, setLoadError] = useState(false);
@@ -114,7 +126,12 @@ export const QuestionAnswerForm = ({
 
   const saveAnswer = async (rowId: string, value: string) => {
     try {
-      await prerequisitesService.saveClientAnswer(installationId, slug, rowId, value);
+      await prerequisitesService.saveClientAnswer(
+        installationId,
+        slug,
+        rowId,
+        value,
+      );
       setErrorRowIds((s) => {
         if (!s.has(rowId)) return s;
         const next = new Set(s);
@@ -131,11 +148,16 @@ export const QuestionAnswerForm = ({
 
   const downloadDomainJson = (domain: VcfDomain) => {
     const json = buildVcfDomainJson(domain, answers);
-    const filename = domain === 'management' ? 'management.json' : 'workload.json';
-    downloadTextFile(filename, `${JSON.stringify(json, null, 2)}\n`, 'application/json');
+    const filename =
+      domain === "management" ? "management.json" : "workload.json";
+    downloadTextFile(
+      filename,
+      `${JSON.stringify(json, null, 2)}\n`,
+      "application/json",
+    );
   };
 
-  const embedded = variant === 'embedded';
+  const embedded = variant === "embedded";
 
   const body = (
     <>
@@ -145,23 +167,35 @@ export const QuestionAnswerForm = ({
         <h1 className="text-2xl font-bold text-[#000E9C] mb-5">{title}</h1>
       )}
 
+      {disabled && (
+        <div
+          role="status"
+          className="mb-6 rounded border border-gray-300 bg-gray-100 p-3 text-sm text-gray-600"
+        >
+          Ce cas d'usage est désactivé (« No ») dans l'onglet OPCP Context —
+          champs non modifiables.
+        </div>
+      )}
+
       <MarkerLegend />
 
       {isVcf && (
         <div className="mb-6 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => downloadDomainJson('management')}
-            className="rounded bg-[#000E9C] px-4 py-2 text-sm font-semibold text-white hover:bg-[#000B7A] focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1"
+            onClick={() => downloadDomainJson("management")}
+            disabled={disabled}
+            className="rounded bg-[#000E9C] px-4 py-2 text-sm font-semibold text-white hover:bg-[#000B7A] focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1 disabled:cursor-not-allowed disabled:bg-gray-400"
           >
-            {t('prereq.vcf.generateManagement.button')}
+            {t("prereq.vcf.generateManagement.button")}
           </button>
           <button
             type="button"
-            onClick={() => downloadDomainJson('workload')}
-            className="rounded bg-[#000E9C] px-4 py-2 text-sm font-semibold text-white hover:bg-[#000B7A] focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1"
+            onClick={() => downloadDomainJson("workload")}
+            disabled={disabled}
+            className="rounded bg-[#000E9C] px-4 py-2 text-sm font-semibold text-white hover:bg-[#000B7A] focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1 disabled:cursor-not-allowed disabled:bg-gray-400"
           >
-            {t('prereq.vcf.generateWorkload.button')}
+            {t("prereq.vcf.generateWorkload.button")}
           </button>
         </div>
       )}
@@ -176,7 +210,15 @@ export const QuestionAnswerForm = ({
       )}
 
       {config.sections.map((section) => (
-        <section key={section.id} className="mb-8">
+        <section
+          key={section.id}
+          aria-disabled={disabled || undefined}
+          className={
+            disabled
+              ? "mb-8 opacity-50 grayscale pointer-events-none select-none"
+              : "mb-8"
+          }
+        >
           <h2 className="text-lg font-semibold text-[#000E9C] mb-4 border-b border-gray-200 pb-2">
             {section.title}
           </h2>
@@ -190,7 +232,10 @@ export const QuestionAnswerForm = ({
               const hasError = errorRowIds.has(row.id);
 
               return (
-                <div key={row.id} className="border-b border-gray-100 pb-4 last:border-b-0">
+                <div
+                  key={row.id}
+                  className="border-b border-gray-100 pb-4 last:border-b-0"
+                >
                   <div className="mb-2 flex items-center gap-2">
                     <span
                       aria-label={t(marker.labelKey)}
@@ -206,27 +251,41 @@ export const QuestionAnswerForm = ({
 
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <div>
-                      <p className="block text-xs font-medium text-gray-500 mb-1">Question</p>
-                      <p className="text-sm font-medium text-gray-800">{row.questionPrimary}</p>
+                      <p className="block text-xs font-medium text-gray-500 mb-1">
+                        Question
+                      </p>
+                      <p className="text-sm font-medium text-gray-800">
+                        {row.questionPrimary}
+                      </p>
                     </div>
 
                     <div>
-                      <p className="block text-xs font-medium text-gray-500 mb-1">Détail</p>
-                      <p className="text-sm text-gray-700">{row.questionSecondary ?? '—'}</p>
+                      <p className="block text-xs font-medium text-gray-500 mb-1">
+                        Détail
+                      </p>
+                      <p className="text-sm text-gray-700">
+                        {row.questionSecondary ?? "—"}
+                      </p>
                     </div>
                   </div>
 
                   <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
                     <div>
-                      <p className="block text-xs font-medium text-gray-500 mb-1">Exemple</p>
-                      <p className="text-sm text-gray-700">{row.exampleValue ?? '—'}</p>
+                      <p className="block text-xs font-medium text-gray-500 mb-1">
+                        Exemple
+                      </p>
+                      <p className="text-sm text-gray-700">
+                        {row.exampleValue ?? "—"}
+                      </p>
                     </div>
 
                     <div>
                       <p className="block text-xs font-medium text-gray-500 mb-1">
                         Commentaires
                       </p>
-                      <p className="text-sm text-gray-700">{row.commentsHint ?? '—'}</p>
+                      <p className="text-sm text-gray-700">
+                        {row.commentsHint ?? "—"}
+                      </p>
                     </div>
 
                     <div>
@@ -240,14 +299,17 @@ export const QuestionAnswerForm = ({
                         type="text"
                         id={answerId}
                         aria-label={`Réponse client — ${row.questionPrimary}`}
-                        value={answers[row.id] ?? ''}
+                        value={answers[row.id] ?? ""}
                         readOnly={!canAnswer}
                         disabled={!canAnswer}
                         onChange={(e) => handleChange(row.id, e.target.value)}
                         onBlur={(e) => {
-                          if (canAnswer) void saveAnswer(row.id, e.target.value);
+                          if (canAnswer)
+                            void saveAnswer(row.id, e.target.value);
                         }}
-                        className={canAnswer ? FIELD_CLASS : READONLY_FIELD_CLASS}
+                        className={
+                          canAnswer ? FIELD_CLASS : READONLY_FIELD_CLASS
+                        }
                       />
                       {hasError && (
                         <p role="alert" className="mt-1 text-xs text-red-600">

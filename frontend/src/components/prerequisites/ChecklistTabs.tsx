@@ -1,8 +1,9 @@
-import { useId, useState } from 'react';
-import { ContextForm } from './ContextForm';
-import { QuestionAnswerForm } from './QuestionAnswerForm';
-import { ServersTable } from './ServersTable';
-import type { ContextConfig, QuestionFormConfig } from './types';
+import { useCallback, useId, useState } from "react";
+import { ContextForm } from "./ContextForm";
+import { QuestionAnswerForm } from "./QuestionAnswerForm";
+import { ServersTable } from "./ServersTable";
+import { NO, USE_CASE_GATED_TABS } from "./types";
+import type { ContextConfig, QuestionFormConfig } from "./types";
 
 /**
  * A checklist tab is either a question/answer category (driven by a
@@ -11,18 +12,18 @@ import type { ContextConfig, QuestionFormConfig } from './types';
  */
 export type ChecklistTab =
   | {
-      kind?: 'qa';
+      kind?: "qa";
       slug: string;
       title: string;
       config: QuestionFormConfig;
     }
   | {
-      kind: 'servers';
+      kind: "servers";
       slug: string;
       title: string;
     }
   | {
-      kind: 'context';
+      kind: "context";
       slug: string;
       title: string;
       config: ContextConfig;
@@ -46,6 +47,18 @@ interface ChecklistTabsProps {
 export const ChecklistTabs = ({ installationId, tabs }: ChecklistTabsProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const baseId = useId();
+  // Resolved OPCP Context values, used to disable tabs whose use case is "No".
+  const [contextValues, setContextValues] = useState<Record<string, string>>(
+    {},
+  );
+  const handleContextValues = useCallback(
+    (v: Record<string, string>) => setContextValues(v),
+    [],
+  );
+  const isTabDisabled = (slug: string) => {
+    const rowId = USE_CASE_GATED_TABS[slug];
+    return rowId !== undefined && contextValues[rowId] === NO;
+  };
 
   if (tabs.length === 0) return null;
 
@@ -64,18 +77,18 @@ export const ChecklistTabs = ({ installationId, tabs }: ChecklistTabsProps) => {
     let next: number | null = null;
 
     switch (event.key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
+      case "ArrowRight":
+      case "ArrowDown":
         next = clampedActive === last ? 0 : clampedActive + 1;
         break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
+      case "ArrowLeft":
+      case "ArrowUp":
         next = clampedActive === 0 ? last : clampedActive - 1;
         break;
-      case 'Home':
+      case "Home":
         next = 0;
         break;
-      case 'End':
+      case "End":
         next = last;
         break;
       default:
@@ -109,8 +122,10 @@ export const ChecklistTabs = ({ installationId, tabs }: ChecklistTabsProps) => {
               onKeyDown={handleKeyDown}
               className={
                 selected
-                  ? 'border-b-2 border-[#4949FF] px-4 py-2 text-sm font-semibold text-[#000E9C] -mb-px focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1 rounded-t'
-                  : 'border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-500 hover:text-[#000E9C] hover:border-gray-300 -mb-px focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1 rounded-t'
+                  ? "border-b-2 border-[#4949FF] px-4 py-2 text-sm font-semibold text-[#000E9C] -mb-px focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1 rounded-t"
+                  : isTabDisabled(tab.slug)
+                    ? "border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-300 italic -mb-px focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1 rounded-t"
+                    : "border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-500 hover:text-[#000E9C] hover:border-gray-300 -mb-px focus:outline-none focus:ring-2 focus:ring-[#4949FF] focus:ring-offset-1 rounded-t"
               }
             >
               {tab.title}
@@ -127,15 +142,20 @@ export const ChecklistTabs = ({ installationId, tabs }: ChecklistTabsProps) => {
           aria-labelledby={tabId(index)}
           hidden={index !== clampedActive}
         >
-          {tab.kind === 'servers' ? (
-            <ServersTable title={tab.title} variant="embedded" installationId={installationId} />
-          ) : tab.kind === 'context' ? (
+          {tab.kind === "servers" ? (
+            <ServersTable
+              title={tab.title}
+              variant="embedded"
+              installationId={installationId}
+            />
+          ) : tab.kind === "context" ? (
             <ContextForm
               installationId={installationId}
               slug={tab.slug}
               title={tab.title}
               config={tab.config}
               variant="embedded"
+              onValuesChange={handleContextValues}
             />
           ) : (
             <QuestionAnswerForm
@@ -144,6 +164,7 @@ export const ChecklistTabs = ({ installationId, tabs }: ChecklistTabsProps) => {
               title={tab.title}
               config={tab.config}
               variant="embedded"
+              disabled={isTabDisabled(tab.slug)}
             />
           )}
         </div>

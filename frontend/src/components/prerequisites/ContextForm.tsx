@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import type { ContextConfig, ContextRow } from './types';
-import { useTranslation } from '../../hooks/useLanguage';
-import { authService } from '../../services/authService';
-import { prerequisitesService } from '../../services/prerequisitesService';
+import { useEffect, useState } from "react";
+import { NO, YES, normalizeYesNo } from "./types";
+import type { ContextConfig, ContextRow } from "./types";
+import { useTranslation } from "../../hooks/useLanguage";
+import { authService } from "../../services/authService";
+import { prerequisitesService } from "../../services/prerequisitesService";
 
 interface ContextFormProps {
   installationId: string;
@@ -14,14 +15,20 @@ interface ContextFormProps {
    * `embedded` drops the outer card and `<h1>` so the form can be hosted
    * inside another container (e.g. a tab panel that already provides both).
    */
-  variant?: 'card' | 'embedded';
+  variant?: "card" | "embedded";
+  /**
+   * Called with the resolved value of every row (saved answer, else default;
+   * Yes/No rows normalised) whenever it changes. Lets the host react to the
+   * context, e.g. disabling tabs for use cases answered "No".
+   */
+  onValuesChange?: (values: Record<string, string>) => void;
 }
 
 const FIELD_CLASS =
-  'w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#4949FF] focus:border-transparent';
+  "w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#4949FF] focus:border-transparent";
 
 const READONLY_FIELD_CLASS =
-  'w-full px-3 py-2 border border-gray-200 rounded text-sm bg-gray-100 text-gray-600 cursor-not-allowed';
+  "w-full px-3 py-2 border border-gray-200 rounded text-sm bg-gray-100 text-gray-600 cursor-not-allowed";
 
 /**
  * Data-driven key/value information form for the OPCP Context prerequisites
@@ -40,7 +47,8 @@ export const ContextForm = ({
   slug,
   title,
   config,
-  variant = 'card',
+  variant = "card",
+  onValuesChange,
 }: ContextFormProps) => {
   // `t` is reserved for future i18n; labels are the French literals from the
   // config, consistent with the rest of the prerequisites UI.
@@ -65,7 +73,25 @@ export const ContextForm = ({
     };
   }, [installationId, slug]);
 
-  const resolveValue = (row: ContextRow) => answers[row.id] ?? row.defaultValue;
+  const resolveValue = (row: ContextRow) => {
+    const raw = answers[row.id] ?? row.defaultValue;
+    return row.inputType === "yesno" ? normalizeYesNo(raw) : raw;
+  };
+
+  useEffect(() => {
+    if (!onValuesChange) return;
+    const values: Record<string, string> = {};
+    for (const section of config.sections) {
+      const rows = [
+        ...(section.rows ?? []),
+        ...(section.subsections ?? []).flatMap((s) => s.rows),
+      ];
+      for (const row of rows) values[row.id] = resolveValue(row);
+    }
+    onValuesChange(values);
+    // resolveValue depends only on `answers`; config is static.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, config, onValuesChange]);
 
   const handleChange = (rowId: string, value: string) => {
     // Preserve the typed value locally regardless of persistence outcome.
@@ -74,7 +100,12 @@ export const ContextForm = ({
 
   const saveValue = async (rowId: string, value: string) => {
     try {
-      await prerequisitesService.saveClientAnswer(installationId, slug, rowId, value);
+      await prerequisitesService.saveClientAnswer(
+        installationId,
+        slug,
+        rowId,
+        value,
+      );
       setErrorRowIds((s) => {
         if (!s.has(rowId)) return s;
         const next = new Set(s);
@@ -92,7 +123,7 @@ export const ContextForm = ({
     void saveValue(rowId, value);
   };
 
-  const embedded = variant === 'embedded';
+  const embedded = variant === "embedded";
 
   /** Render a single labeled key/value row as a `<label>` + free-text input. */
   const renderRow = (row: ContextRow) => {
@@ -100,22 +131,45 @@ export const ContextForm = ({
     const hasError = errorRowIds.has(row.id);
 
     return (
-      <div key={row.id} className="grid grid-cols-1 gap-1 md:grid-cols-3 md:items-center md:gap-3">
-        <label htmlFor={inputId} className="text-sm font-medium text-gray-700 md:col-span-1">
+      <div
+        key={row.id}
+        className="grid grid-cols-1 gap-1 md:grid-cols-3 md:items-center md:gap-3"
+      >
+        <label
+          htmlFor={inputId}
+          className="text-sm font-medium text-gray-700 md:col-span-1"
+        >
           {row.label}
         </label>
         <div className="md:col-span-2">
-          <input
-            type="text"
-            id={inputId}
-            aria-label={row.label}
-            value={resolveValue(row)}
-            readOnly={!canEdit}
-            disabled={!canEdit}
-            onChange={(e) => handleChange(row.id, e.target.value)}
-            onBlur={(e) => commit(row.id, e.target.value)}
-            className={canEdit ? FIELD_CLASS : READONLY_FIELD_CLASS}
-          />
+          {row.inputType === "yesno" ? (
+            <select
+              id={inputId}
+              aria-label={row.label}
+              value={resolveValue(row)}
+              disabled={!canEdit}
+              onChange={(e) => {
+                handleChange(row.id, e.target.value);
+                commit(row.id, e.target.value);
+              }}
+              className={canEdit ? FIELD_CLASS : READONLY_FIELD_CLASS}
+            >
+              <option value={YES}>Yes</option>
+              <option value={NO}>No</option>
+            </select>
+          ) : (
+            <input
+              type="text"
+              id={inputId}
+              aria-label={row.label}
+              value={resolveValue(row)}
+              readOnly={!canEdit}
+              disabled={!canEdit}
+              onChange={(e) => handleChange(row.id, e.target.value)}
+              onBlur={(e) => commit(row.id, e.target.value)}
+              className={canEdit ? FIELD_CLASS : READONLY_FIELD_CLASS}
+            />
+          )}
           {hasError && (
             <p role="alert" className="mt-1 text-xs text-red-600">
               Échec de l'enregistrement. Réessayez.
@@ -155,7 +209,9 @@ export const ContextForm = ({
 
           {section.subsections?.map((subsection) => (
             <div key={subsection.id} className="mt-6">
-              <h3 className="text-base font-semibold text-[#4949FF] mb-3">{subsection.title}</h3>
+              <h3 className="text-base font-semibold text-[#4949FF] mb-3">
+                {subsection.title}
+              </h3>
               <div className="space-y-4">{subsection.rows.map(renderRow)}</div>
             </div>
           ))}

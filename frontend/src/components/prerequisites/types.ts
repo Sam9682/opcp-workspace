@@ -1,4 +1,4 @@
-export type Status = 'received' | 'pending' | 'blocked' | 'na';
+export type Status = "received" | "pending" | "blocked" | "na";
 
 export interface StatusMeta {
   value: Status;
@@ -7,10 +7,10 @@ export interface StatusMeta {
 }
 
 export const STATUS_OPTIONS: StatusMeta[] = [
-  { value: 'received', labelKey: 'prereq.status.received', icon: '✅' },
-  { value: 'pending', labelKey: 'prereq.status.pending', icon: '⏳' },
-  { value: 'blocked', labelKey: 'prereq.status.blocked', icon: '❌' },
-  { value: 'na', labelKey: 'prereq.status.na', icon: '—' },
+  { value: "received", labelKey: "prereq.status.received", icon: "✅" },
+  { value: "pending", labelKey: "prereq.status.pending", icon: "⏳" },
+  { value: "blocked", labelKey: "prereq.status.blocked", icon: "❌" },
+  { value: "na", labelKey: "prereq.status.na", icon: "—" },
 ];
 
 // Static description of a parameter row (from config)
@@ -47,7 +47,7 @@ export type FormState = Record<string, RowState>;
 export interface PrereqNavItem {
   labelKey: string;
   route: string; // always `/prerequisites/${slug}`
-  archetype: 'how-to-use' | 'static' | 'qa';
+  archetype: "how-to-use" | "static" | "qa";
 }
 
 // Content and answers are now installation-scoped, so the per-slug pages can no
@@ -56,15 +56,23 @@ export interface PrereqNavItem {
 // user selects an Installation before drilling into a slug. The global
 // how-to-use page (no per-installation data) remains directly reachable.
 export const PREREQ_NAV_ITEMS = [
-  { labelKey: 'prereq.nav.howToUse', route: '/prerequisites/how-to-use', archetype: 'how-to-use' },
-  { labelKey: 'prereq.nav.installations', route: '/prerequisites/installations', archetype: 'static' },
+  {
+    labelKey: "prereq.nav.howToUse",
+    route: "/prerequisites/how-to-use",
+    archetype: "how-to-use",
+  },
+  {
+    labelKey: "prereq.nav.installations",
+    route: "/prerequisites/installations",
+    archetype: "static",
+  },
 ] as const satisfies readonly PrereqNavItem[];
 
 // Shared marker legend used by the How-to-use legend and per-row markers on
 // question/answer pages so they stay consistent.
 export const PREREQ_MARKERS = {
-  mandatory: { labelKey: 'prereq.marker.mandatory', icon: '🔴' },
-  optional: { labelKey: 'prereq.marker.optional', icon: '⚪' },
+  mandatory: { labelKey: "prereq.marker.mandatory", icon: "🔴" },
+  optional: { labelKey: "prereq.marker.optional", icon: "⚪" },
 } as const;
 // ---------------------------------------------------------------------------
 // Question-archetype data models (Network Checklist, Core Control Plane,
@@ -121,7 +129,32 @@ export interface ContextRow {
   id: string; // stable, unique within the context page (the rowId)
   label: string; // French label shown to the user
   defaultValue: string; // seeded value; '' means "empty default"
+  // Input style: free text (default) or a Yes/No combo box.
+  inputType?: "text" | "yesno";
 }
+
+// Values used by `inputType: 'yesno'` rows.
+export const YES = "Yes";
+export const NO = "No";
+
+/**
+ * Normalise a stored Yes/No value. Legacy free-text answers ("Within Scope" /
+ * "Out of Scope") are mapped onto Yes / No so existing installations keep
+ * their meaning.
+ */
+export const normalizeYesNo = (
+  value: string | undefined,
+): typeof YES | typeof NO => {
+  const v = (value ?? "").trim().toLowerCase();
+  return v === "yes" || v === "oui" || v === "within scope" ? YES : NO;
+};
+
+// Context rows that gate a whole checklist tab: when the row resolves to "No",
+// the mapped tab is greyed out and disabled.
+export const USE_CASE_GATED_TABS: Readonly<Record<string, string>> = {
+  cloudstore: "ctx-usecase-cloudstore",
+  vcf: "ctx-usecase-vcf",
+};
 
 // A nested subsection (used by the Contacts section). Mirrors the shape of a
 // section minus further nesting — subsections do not nest further.
