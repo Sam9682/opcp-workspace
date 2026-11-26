@@ -6,6 +6,7 @@ import { infoService, type Stats } from '../services/infoService';
 import { useTranslation } from '../hooks/useLanguage';
 import { buildPublicHtmlUrl } from '../utils/forumLinks';
 import OPCPpng from '../assets/OPCP.png';
+import { BASE_PATH, withBase } from '../utils/basePath';
 
 export const HomePage = () => {
   const { t } = useTranslation();
@@ -78,7 +79,7 @@ export const HomePage = () => {
         </h1>
         <div className="flex justify-center mb-6">
           <img 
-            src={OPCPpng} 
+            src={withBase(OPCPpng)} 
             alt="OPCP - Intelligence Artificielle" 
             className="max-w-xl w-full h-auto rounded-lg shadow-md border border-gray-200"
           />
@@ -93,10 +94,10 @@ export const HomePage = () => {
           <li>{t('page.home.hero.bullet.bots')}  <a href="https://opcp-psmc.com" target="_blank" rel="noopener noreferrer" className="text-[#4949FF] hover:underline font-medium">opcp-psmc.com</a></li>
         </ul>
         <div className="mt-8 flex justify-center gap-4 flex-wrap">
-          <a href="/register" className="btn-primary">
+          <a href={withBase('/register')} className="btn-primary">
             {t('page.home.cta.join')}
           </a>
-          <a href="/forum" className="btn-secondary">
+          <a href={withBase('/forum')} className="btn-secondary">
             {t('page.home.cta.discoverForum')}
           </a>
         </div>
@@ -213,7 +214,7 @@ export const HomePage = () => {
                     </span>
                     {!isAuthenticated && viewButtonEnabled && (
                       <a
-                        href={buildPublicHtmlUrl(window.location.origin, topic.id)}
+                        href={buildPublicHtmlUrl(window.location.origin, topic.id, BASE_PATH)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs font-medium text-white bg-[#27ae60] hover:bg-[#219a52] px-2 py-1 rounded transition-colors hover:no-underline"

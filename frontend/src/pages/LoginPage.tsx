@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService, isLogin2FAChallenge } from '../services/authService';
 import { validateEmail } from '../utils/validation';
 import { useTranslation } from '../hooks/useLanguage';
+import { withBase } from '../utils/basePath';
 
 export const LoginPage = () => {
   const { t } = useTranslation();
@@ -219,12 +220,12 @@ export const LoginPage = () => {
           )}
           {!challengeToken && (
             <div className="mt-5 space-y-2 text-center">
-              <a href="/forgot-password" className="text-sm text-[#4949FF] hover:underline">
+              <a href={withBase('/forgot-password')} className="text-sm text-[#4949FF] hover:underline">
                 {t('page.login.forgotPassword')}
               </a>
               <p className="text-sm text-gray-600">
                 {t('page.login.notMember')}{' '}
-                <a href="/register" className="font-medium text-[#4949FF] hover:underline">
+                <a href={withBase('/register')} className="font-medium text-[#4949FF] hover:underline">
                   {t('page.login.registerHere')}
                 </a>
               </p>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { authService } from '../services/authService';
 import { validateEmail } from '../utils/validation';
 import { useTranslation } from '../hooks/useLanguage';
+import { withBase } from '../utils/basePath';
 
 export const ForgotPasswordPage = () => {
   const { t } = useTranslation();
@@ -46,7 +47,7 @@ export const ForgotPasswordPage = () => {
                   {t('page.forgotPassword.success')}
                 </p>
               </div>
-              <a href="/login" className="text-sm font-medium text-[#4949FF] hover:underline">
+              <a href={withBase('/login')} className="text-sm font-medium text-[#4949FF] hover:underline">
                 {t('page.forgotPassword.backToLogin')}
               </a>
             </div>
@@ -82,7 +83,7 @@ export const ForgotPasswordPage = () => {
               </button>
 
               <div className="text-center">
-                <a href="/login" className="text-sm font-medium text-[#4949FF] hover:underline">
+                <a href={withBase('/login')} className="text-sm font-medium text-[#4949FF] hover:underline">
                   {t('page.forgotPassword.backToLogin')}
                 </a>
               </div>

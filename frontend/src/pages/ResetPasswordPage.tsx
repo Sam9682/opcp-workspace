@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { useTranslation } from '../hooks/useLanguage';
+import { withBase } from '../utils/basePath';
 
 export const ResetPasswordPage = () => {
   const { t } = useTranslation();
@@ -138,7 +139,7 @@ export const ResetPasswordPage = () => {
               </button>
 
               <div className="text-center">
-                <a href="/login" className="text-sm font-medium text-[#4949FF] hover:underline">
+                <a href={withBase('/login')} className="text-sm font-medium text-[#4949FF] hover:underline">
                   {t('page.resetPassword.backToLogin')}
                 </a>
               </div>

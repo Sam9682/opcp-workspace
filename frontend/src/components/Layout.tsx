@@ -5,6 +5,7 @@ import { authService } from '../services/authService';
 import type { CurrentUser } from '../services/authService';
 import { PREREQ_NAV_ITEMS } from './prerequisites/types';
 import { useTranslation } from '../hooks/useLanguage';
+import { withBase } from '../utils/basePath';
 
 interface LayoutProps {
   children: ReactNode;
@@ -49,7 +50,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const handleLogout = async () => {
     try {
       await authService.logout();
-      window.location.href = '/';
+      window.location.href = withBase('/');
     } catch (error) {
       console.error('Logout failed:', error);
     }

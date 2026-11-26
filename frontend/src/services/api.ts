@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { withBase } from '../utils/basePath';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || withBase('/api');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -57,7 +58,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isAuthEndpoint(error.config?.url)) {
       // Clear token and redirect to login
       localStorage.removeItem('access_token');
-      window.location.href = '/login';
+      window.location.href = withBase('/login');
     }
     return Promise.reject(error);
   }

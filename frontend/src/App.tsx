@@ -23,11 +23,12 @@ import { EventsPage } from './pages/EventsPage';
 import { TasksPage } from './pages/TasksPage';
 import { SecurityPage } from './pages/SecurityPage';
 import { LanguageProvider } from './hooks/useLanguage';
+import { BASE_PATH } from './utils/basePath';
 
 function App() {
   return (
     <LanguageProvider>
-      <Router>
+      <Router basename={BASE_PATH}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

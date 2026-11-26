@@ -10,5 +10,11 @@
 // The `origin` is an explicit argument so the fix/preservation properties can be
 // unit- and property-tested by stubbing an origin. In the HomePage component it
 // is called with `window.location.origin`.
-export const buildPublicHtmlUrl = (origin: string, topicId: string): string =>
-  `${origin}/api/forum/topics/${topicId}/publichtml`;
+export const buildPublicHtmlUrl = (
+  origin: string,
+  topicId: string,
+  basePath: string = '/',
+): string => {
+  const base = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
+  return `${origin}${base}/api/forum/topics/${topicId}/publichtml`;
+};

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { validateEmail, getPasswordStrengthMessage } from '../utils/validation';
 import { useTranslation } from '../hooks/useLanguage';
+import { withBase } from '../utils/basePath';
 
 export const RegisterPage = () => {
   const { t } = useTranslation();
@@ -189,7 +190,7 @@ export const RegisterPage = () => {
           <div className="mt-5 text-center">
             <p className="text-sm text-gray-600">
               {t('page.register.alreadyMember')}{' '}
-              <a href="/login" className="font-medium text-[#4949FF] hover:underline">
+              <a href={withBase('/login')} className="font-medium text-[#4949FF] hover:underline">
                 {t('page.register.loginHere')}
               </a>
             </p>
