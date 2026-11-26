@@ -1,292 +1,141 @@
 # OPCP workspace
 
-Member web platform for the OPCP workspace: forum, documents, events, tasks, notifications and the OPCP RAG AI companion. It consists of a FastAPI backend and a React/Vite frontend.
+Member web platform for the OPCP workspace. It provides a forum, a document space, events and tasks, OPCP installation prerequisites, and an AI assistant (the Oracle) with an OPCP RAG companion. The stack is a FastAPI backend, a React/Vite frontend and PostgreSQL with pgvector, deployed with Docker Compose behind nginx.
 
 ## Features
 
-- Member authentication with two-factor authentication (TOTP and email) and password reset
-- Discussion forum with moderation and public access
-- Secure document space, plus a document adapter (Word/PDF extraction and export)
-- Event planning with registration, reminders and iCal export
-- Task management
-- Notifications (email and server-sent events)
-- Administration and role management, with an audit log
-- Prerequisites questionnaire and information pages
-- GDPR compliance (user data export and deletion)
-- Rate limiting on the API
-- Oracle AI module (RAG over documents stored in PostgreSQL with pgvector)
-- Database backups to S3-compatible storage (including OVH) and restore scripts
-- Optional application-level database field encryption (see below)
+- **Accounts**: registration with email verification, password reset, 2FA (TOTP or email code), roles (visitor, member, administrator), membership status
+- **Forum**: topics and posts, admin moderation, public read-only views
+- **Documents**: document space with access levels; files in `docs/to_publish/` are published automatically
+- **Document adapter**: rewrites a PDF/Word document for a target audience with AI, then exports it to PDF or DOCX
+- **Oracle AI**: chat assistant with streamed answers. Providers: Shai (OVH AI Endpoints), OPCP Companion (RAG over pgvector), OpenAI, Kiro CLI
+- **Prerequisites**: per-installation OPCP prerequisite questionnaires, with live OpenStack server retrieval
+- **Events and tasks**: event registration with iCal export and email reminders; private tasks with assignees
+- **Administration**: member management, audit and login logs, activity report, announcements, AI provider toggles, forum and encryption settings
+- **Compliance and security**: GDPR data export and deletion, rate limiting, optional database field encryption
+- **Operations**: local and S3/OVH database backups and restore scripts
+- **Payments** (backend only): Stripe and PayPal membership payments with PDF invoices
 
-## Tech Stack
+## Tech stack
 
-- **Backend**: Python 3.11+ with FastAPI, SQLAlchemy, Alembic, APScheduler
-- **Database**: PostgreSQL (pgvector image `pgvector/pgvector:pg15` in Docker Compose)
-- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS, react-router
-- **Testing**: pytest, hypothesis (backend); Vitest, Testing Library, fast-check (frontend)
-- **Infrastructure**: Docker, Docker Compose, nginx
+| Layer | Technology |
+|-------|------------|
+| Backend | Python 3.11, FastAPI, SQLAlchemy 2, Alembic, APScheduler, slowapi |
+| Database | PostgreSQL 15 with pgvector (`pgvector/pgvector:pg15`) |
+| Frontend | React 19, TypeScript, Vite 7, Tailwind CSS, react-router |
+| AI | OVH AI Endpoints (OpenAI-compatible), OpenAI, Kiro CLI |
+| Tests | pytest + Hypothesis (backend); Vitest + Testing Library + fast-check (frontend) |
+| Infrastructure | Docker Compose, nginx (TLS reverse proxy) |
 
-## Setup
+## Quick start
 
-### Prerequisites
+### Docker (recommended)
 
-- Python 3.11 or higher
-- PostgreSQL 14 or higher
-- pip and virtualenv
-- Node.js and npm (for the frontend)
-- Docker and Docker Compose (optional, for the containerised deployment)
-
-### Backend installation (manual)
-
-1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd opcp-workspace
+git submodule update --init         # deployApp.sh lives in the ai-swautomorph--shared submodule
+cp .env.example .env                 # set SECRET_KEY, SMTP_*, SHAI_API_KEY, ...
+./deployApp.sh start <USER_ID>
 ```
 
-2. Create and activate virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+The application is served at `https://<DOMAIN>:<HTTPS_PORT>`, where `HTTPS_PORT = 6024 + 100 × USER_ID`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for ports, TLS and a plain `docker compose up` alternative.
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+On an empty database, the default administrator is `admin@opcp-psmc.com` / `Admin1234!`. Change the password right away.
 
-4. Configure environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-`.env.example` documents the `PG_*` and `TABLE_NAME` settings (pgvector connection), the `SHAI_API_KEY`, `SHAI_API_URL` and `SHAI_MODEL` settings (Oracle AI provider) and the optional `DB_ENCRYPTION_KEY`. Replace the placeholder values in your own `.env` and never commit it.
-
-5. Setup PostgreSQL database:
-```bash
-# Create database and user
-createdb OPCP_db
-createuser OPCP_user
-# Grant privileges (run in psql)
-GRANT ALL PRIVILEGES ON DATABASE OPCP_db TO OPCP_user;
-```
-
-6. Run database migrations:
-```bash
-alembic upgrade head
-```
-
-7. Start the development server:
-```bash
-uvicorn app.main:app --reload
-```
-
-The API will be available at http://opcp-workspace:8000
-
-API documentation: http://opcp-workspace:8000/docs
-
-> The manual flow above uses the `OPCP_db` / `OPCP_user` database. The Docker Compose deployment is independent and provisions its own `shai_db` / `shai_user` database inside the `postgres` container.
-
-### Frontend
+To build the RAG index for the OPCP Companion:
 
 ```bash
-cd frontend
-npm install
-npm run dev      # Vite development server
-npm run build    # Type-check and production build
-npm run lint     # ESLint
-npm run preview  # Preview the production build
-```
-
-### Docker Compose
-
-`docker-compose.yml` defines these services:
-
-| Service | Description |
-|---------|-------------|
-| `postgres` | PostgreSQL with pgvector (`pgvector/pgvector:pg15`), data in the `postgres_data` volume |
-| `backend-component` | FastAPI API (container port 8000), storage in the `app_data` volume |
-| `frontend` | Built React frontend |
-| `frontend-component` | nginx reverse proxy with SSL (certificates are read from an `ssl` directory you provide at the repo root, mounted by `docker-compose.yml`) |
-| `ingest` | One-off RAG document ingestion (`python -m scripts.ingest_embeddings`), only started with the `ingest` profile |
-
-```bash
-# Start the stack
-docker compose up -d --build
-
-# Run the one-off ingestion job
 docker compose --profile ingest run --rm ingest
 ```
 
-Compose reads its settings from `.env` (copied from `.env.example`).
+### Local development
 
-### Helper scripts
+```bash
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env                 # DATABASE_URL must point to a PostgreSQL with pgvector
+alembic upgrade head
+uvicorn app.main:app --reload        # API on :8000, OpenAPI UI at /docs
 
-| Script | Purpose |
-|--------|---------|
-| `setup.sh` | Initial setup of the workspace |
-| `scripts/start.sh` | Start the application |
-| `scripts/stop.sh` | Stop the application |
-| `scripts/restart.sh` | Restart the application |
-| `scripts/deploy.sh` | Deploy the application |
-| `scripts/backup.sh` | Back up the database |
+cd frontend
+npm install
+VITE_API_BASE_URL=http://localhost:8000/api npm run dev   # UI on :3000
+```
 
-### Backup and restore
+## Configuration
 
-Database backup and restore (local and S3/OVH) are covered in `scripts/README.md` and `scripts/README_BACKUP.md`. See also `docs/BACKUP_S3_SETUP.md` and `docs/RESTORE_COMMANDS.md`.
+All settings come from environment variables or `.env` (`app/config.py`). The main ones:
 
-## Project Structure
+| Variable | Purpose |
+|----------|---------|
+| `SECRET_KEY` | JWT signing key (required) |
+| `DATABASE_URL` | PostgreSQL connection |
+| `ALLOWED_ORIGINS` | CORS origins |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | Outgoing email |
+| `SHAI_API_KEY`, `SHAI_API_URL`, `SHAI_MODEL` | Default AI provider |
+| `OVH_AI_ENDPOINT`, `OVH_AI_TOKEN`, `LLM_*`, `EMBEDDING_*` | OPCP Companion (RAG) |
+| `DB_ENCRYPTION_KEY` | Optional field-encryption key |
+| `KEY_DECRYPT_INFORMATIONS_OPCP` | Decrypts the OPCP reference docs in `docs/opcp_external_docs` (stored encrypted) |
+
+Full list: [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+
+## Project structure
 
 ```
 opcp-workspace/
-├── app/                    # Backend application code (FastAPI)
-│   ├── admin/              # Administration and roles
-│   ├── auth/               # Authentication and 2FA
-│   ├── document_adapter/   # Document audience adapter (Word/PDF)
-│   ├── documents/          # Document space
-│   ├── events/             # Events, registration, iCal
-│   ├── forum/              # Discussion forum
-│   ├── info/               # Information pages
-│   ├── middleware/         # HTTP middleware
-│   ├── models/             # SQLAlchemy models
-│   ├── notifications/      # Email and SSE notifications
-│   ├── oracle/             # Oracle AI module (RAG)
-│   ├── payments/           # Stripe and PayPal payments
-│   ├── prerequisites/      # Prerequisites questionnaire
-│   ├── security/           # Security helpers (incl. field encryption)
-│   ├── services/           # Shared services
-│   ├── tasks/              # Task management
-│   ├── users/              # Member management
-│   ├── config.py           # Configuration
-│   ├── database.py         # Database setup
-│   ├── error_handlers.py   # Exception handlers
-│   ├── exceptions.py       # Custom exceptions
-│   ├── logging_config.py   # Logging configuration
-│   ├── main.py             # FastAPI application
-│   ├── scheduler.py        # Background jobs (APScheduler)
-│   └── startup.py          # Startup tasks
-├── frontend/               # React/Vite/TypeScript frontend
-│   ├── src/                # Pages, components, hooks, services, i18n, tests
-│   ├── public/             # Static assets
-│   └── package.json        # npm scripts and dependencies
-├── shared/                 # Git submodule (shared content)
-├── tests/                  # Backend tests (pytest)
-│   ├── prerequisites/      # Prerequisites tests
-│   └── conftest.py         # Pytest fixtures
-├── migrations/             # Alembic migrations
-│   ├── env.py
-│   ├── script.py.mako
-│   └── versions/           # Migration files
-├── scripts/                # Start/stop, deploy, backup/restore, ingestion, encryption
-├── docs/                   # Feature and operations documentation
-├── conf/                   # Deployment and Oracle context configuration
-├── static/                 # Static files
-├── templates/              # Email templates
-├── storage/                # File storage
-├── Dockerfile              # Backend image
-├── docker-compose.yml      # Docker Compose stack
-├── requirements.txt        # Python dependencies
-├── alembic.ini             # Alembic configuration
-├── pytest.ini              # Pytest configuration
-├── setup.sh                # Initial setup script
-├── SETUP.md                # Initial setup notes
-├── .env.example            # Example environment variables
-└── README.md               # This file
+├── app/                      # FastAPI backend
+│   ├── admin/ auth/ users/   # Administration, authentication/2FA, GDPR endpoints
+│   ├── forum/ documents/ events/ tasks/ notifications/ info/
+│   ├── document_adapter/     # AI audience adaptation + PDF/DOCX export
+│   ├── oracle/               # Oracle AI providers, RAG, streaming
+│   ├── prerequisites/        # Installation prerequisites + OpenStack proxy
+│   ├── payments/             # Stripe/PayPal endpoints
+│   ├── security/             # Database field encryption
+│   ├── services/             # Email, storage, document seeding, reminders, payments
+│   ├── middleware/           # Rate limiting
+│   ├── models/               # SQLAlchemy models
+│   ├── main.py               # App, routers, startup lifecycle
+│   ├── config.py             # Settings
+│   └── scheduler.py          # Daily jobs
+├── frontend/                 # React/Vite/TypeScript SPA (src/pages, components, services, i18n)
+├── migrations/               # Alembic migrations
+├── tests/                    # Backend tests (pytest)
+├── scripts/                  # Backup/restore, RAG ingestion, encryption migration, DB access
+├── conf/                     # deploy.ini, nginx.conf.template, shai_context.md (Shai business context)
+├── docs/                     # Documentation + content folders (to_publish/, opcp_external_docs/)
+├── ai-swautomorph--shared/   # Submodule: shared deployment tooling (deployApp.sh)
+├── shared/                   # Submodule: shared Kiro specs
+├── Dockerfile                # Backend image
+└── docker-compose.yml        # postgres, backend-component, frontend, frontend-component (nginx), ingest
 ```
 
 ## Testing
 
-### Backend
-
-Run all tests:
 ```bash
+# Backend (uses a SQLite file, ./test.db; no PostgreSQL needed)
 pytest
-```
-
-Run with coverage:
-```bash
+pytest -m property        # Hypothesis property tests (also: -m unit, -m integration)
 pytest --cov=app --cov-report=html
-```
 
-Run property-based tests:
-```bash
-pytest -m property
-```
-
-`pytest.ini` registers the `property`, `unit` and `integration` markers (strict markers are enabled), so you can also run `pytest -m unit` or `pytest -m integration`. Tests live in `tests/` as `test_*.py` files, with `tests/prerequisites/` for the prerequisites module.
-
-### Frontend
-
-```bash
+# Frontend
 cd frontend
-npm test       # Vitest (vitest run)
-npm run lint   # ESLint
+npm test                  # vitest run
+npm run lint
+npm run build             # type-check + production build
 ```
-
-Frontend tests are `*.test.tsx` files under `frontend/src`.
 
 ## Documentation
 
-- [SETUP.md](SETUP.md): initial setup notes
-- [scripts/README.md](scripts/README.md): scripts, backup/restore and encryption workflow
-- [scripts/README_BACKUP.md](scripts/README_BACKUP.md): backup guide
-- [docs/QUICK_START.md](docs/QUICK_START.md): quick start
-- [docs/OPCP_First_Steps.md](docs/OPCP_First_Steps.md): first steps
-- [docs/ORACLE_AI_MODULE.md](docs/ORACLE_AI_MODULE.md): Oracle AI module
-- [docs/STRIPE_INTEGRATION.md](docs/STRIPE_INTEGRATION.md): Stripe integration
-- [docs/PAYPAL_INTEGRATION.md](docs/PAYPAL_INTEGRATION.md): PayPal integration
-- [docs/SMTP_CONFIGURATION.md](docs/SMTP_CONFIGURATION.md): SMTP configuration
-- [docs/BACKUP_S3_SETUP.md](docs/BACKUP_S3_SETUP.md): S3 backup setup
-
-## Development
-
-### Database Migrations
-
-Create a new migration:
-```bash
-alembic revision --autogenerate -m "Description of changes"
-```
-
-Apply migrations:
-```bash
-alembic upgrade head
-```
-
-Rollback migration:
-```bash
-alembic downgrade -1
-```
-
-### Code Style
-
-This project follows PEP 8 style guidelines.
-
-## Database Field Encryption (optional)
-
-Application-level, opt-in encryption of a small set of sensitive non-indexed
-free-text columns (`forum_topics.title`, `forum_posts.content`,
-`users.first_name`, `users.last_name`, `notifications.content`,
-`events.description`, `tasks.description`). Disabled by default — data is stored
-in plaintext until an administrator opts in.
-
-How it works:
-- An administrator enables the toggle and sets a password key on the admin
-  **Configuration** page. The key is never stored; only a salted PBKDF2
-  verification hash is persisted, so the app can validate the key but cannot
-  recover it. The Fernet encryption key is derived from the password key.
-- Changing the state of existing data is applied by the offline script
-  `scripts/migrate_encryption.py` (`--enable` / `--disable`), which
-  encrypts/decrypts all in-scope rows and only then flips
-  `encryption_config.enabled`.
-- Set `DB_ENCRYPTION_KEY` (see `.env.example`) to let the app decrypt after a
-  restart without re-entering the key.
-
-> ⚠️ If encryption is enabled and the password key (and the derived
-> `DB_ENCRYPTION_KEY`) are lost, the encrypted data is **permanently
-> unrecoverable** by design.
-
-See `scripts/README.md` for the full workflow.
+| Document | Content |
+|----------|---------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, lifecycle, roles, API reference, data model, frontend routes |
+| [docs/CONFIGURATION.md](docs/CONFIGURATION.md) | Environment variables |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Docker Compose, `deployApp.sh`, ports, TLS, nginx, migrations |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Database access, backups, restore, admin recovery |
+| [docs/SECURITY.md](docs/SECURITY.md) | Authentication, 2FA, rate limits, GDPR, field encryption |
+| [docs/ORACLE_AI_MODULE.md](docs/ORACLE_AI_MODULE.md) | Oracle AI providers, RAG companion, ingestion |
+| [docs/DOCUMENTS.md](docs/DOCUMENTS.md) | Document space and document adapter |
+| [docs/PAYMENTS.md](docs/PAYMENTS.md) | Membership payments |
+| [scripts/README.md](scripts/README.md) | Script reference |
 
 ## License
 

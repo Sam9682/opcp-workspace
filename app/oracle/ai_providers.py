@@ -118,16 +118,39 @@ def _build_shai_prompt(
     skill_context: Optional[str],
     context: Optional[str],
     question: str,
+    docs_notice: Optional[str] = None,
 ) -> str:
-    """Assemble le prompt Shai : contexte métier (optionnel) + contexte existant
-    (optionnel) + question. Combine sans remplacer le contexte existant."""
+    """Assemble le prompt Shai : contexte métier (optionnel) + avis « documentation
+    chiffrée » (optionnel) + contexte existant (optionnel) + question. Combine
+    sans remplacer le contexte existant."""
     parts = []
     if skill_context:
         parts.append(skill_context)
+    if docs_notice:
+        parts.append(docs_notice)
     if context:
         parts.append(f"Contexte: {context}")
     parts.append(f"Question: {question}")
     return "\n\n".join(parts)
+
+
+def _opcp_docs_notice() -> Optional[str]:
+    """Avis à ajouter au prompt Shai si la documentation OPCP est encore chiffrée.
+
+    Ne fait jamais échouer la requête : en cas d'erreur, aucun avis n'est ajouté.
+    """
+    try:
+        from app.oracle.opcp_docs import encrypted_docs_notice
+
+        notice = encrypted_docs_notice()
+        if notice:
+            logger.info(
+                "[GenAI] Documentation OPCP chiffrée (aucune clé) : avis ajouté au prompt Shai"
+            )
+        return notice
+    except Exception as e:  # pragma: no cover - défensif
+        logger.warning(f"Statut de la documentation OPCP indisponible : {e}")
+        return None
 
 
 def strip_ansi_codes(text: str) -> str:
@@ -289,7 +312,8 @@ class ShaiAIProvider(AIProvider):
 
         try:
             skill_context = _load_shai_skill_context()
-            prompt = _build_shai_prompt(skill_context, context, question)
+            docs_notice = _opcp_docs_notice()
+            prompt = _build_shai_prompt(skill_context, context, question, docs_notice)
 
             client = self._get_client()
 

@@ -78,9 +78,7 @@
       "frontend/src/services/oracleService.ts"
     ],
     "docs": [
-      "docs/ORACLE_AI_MODULE.md",
-      "docs/ORACLE_INTEGRATION_GUIDE.md",
-      "docs/ORACLE_QUICK_START.md"
+      "docs/ORACLE_AI_MODULE.md"
     ],
     "scripts": [
       "scripts/install_kiro_cli.sh",

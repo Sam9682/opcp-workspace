@@ -62,7 +62,7 @@ Pour plus d'informations, consultez :
 - 📖 [Guide complet](README_BACKUP.md)
 - 🚀 [Démarrage rapide](QUICK_START_BACKUP.md)
 - 📝 [Aide-mémoire](COMMANDS_CHEATSHEET.md)
-- 📄 [Configuration principale](../BACKUP_S3_SETUP.md)
+- 📄 [Sauvegarde et restauration](../docs/OPERATIONS.md)
 
 ## 🔧 Configuration
 

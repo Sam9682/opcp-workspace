@@ -53,7 +53,6 @@ def main():
     print("\n📚 Documentation:")
     doc_files = [
         "docs/ORACLE_AI_MODULE.md",
-        "docs/ORACLE_INTEGRATION_GUIDE.md",
     ]
     
     for file in doc_files:

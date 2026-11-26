@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     # means the key must be supplied at runtime via the admin API.
     DB_ENCRYPTION_KEY: str = ""
 
+    # Passphrase that decrypts the OPCP reference documentation stored
+    # encrypted in docs/opcp_external_docs (see app/oracle/opcp_docs.py).
+    # Empty or the .env.example placeholder means "no key": the files stay
+    # encrypted and Shai is told not to read them.
+    KEY_DECRYPT_INFORMATIONS_OPCP: str = ""
+
     # Email (optional for development)
     SMTP_HOST: str = "localhost"
     SMTP_PORT: int = 587

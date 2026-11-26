@@ -27,9 +27,18 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 import app.oracle.ai_providers as ai_providers
 from app.config import settings
 from app.oracle.ai_providers import ShaiAIProvider
+
+
+@pytest.fixture(autouse=True)
+def _docs_readable(monkeypatch):
+    """Pin the OPCP docs as readable: these tests assert exact prompts, and the
+    "encrypted docs" notice is covered by tests/test_opcp_docs_encryption.py."""
+    monkeypatch.setattr(ai_providers, "_opcp_docs_notice", lambda: None)
 
 
 # ---------------------------------------------------------------------------

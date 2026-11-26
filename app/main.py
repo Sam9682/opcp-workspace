@@ -48,6 +48,12 @@ async def lifespan(app: FastAPI):
     
     # Seed repository docs/ files into the document system (after admin exists)
     seed_docs_folder()
+
+    # Decrypt the OPCP reference documentation in place when
+    # KEY_DECRYPT_INFORMATIONS_OPCP is configured. Best effort: never blocks
+    # startup; without a key the files stay encrypted.
+    from app.oracle.opcp_docs import ensure_opcp_docs_decrypted
+    ensure_opcp_docs_decrypted()
     
     # Start background task scheduler
     task_scheduler.start()

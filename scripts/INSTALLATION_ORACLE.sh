@@ -45,10 +45,6 @@ check_file "frontend/src/services/oracleService.ts" || all_ok=false
 echo ""
 echo "Documentation:"
 check_file "docs/ORACLE_AI_MODULE.md" || all_ok=false
-check_file "docs/ORACLE_INTEGRATION_GUIDE.md" || all_ok=false
-check_file "docs/ORACLE_QUICK_START.md" || all_ok=false
-check_file "docs/ORACLE_INTERNAL_USAGE.md" || all_ok=false
-check_file "README_ORACLE.md" || all_ok=false
 
 echo ""
 echo "Configuration:"
@@ -86,7 +82,7 @@ if [ "$all_ok" = true ]; then
     echo "   Ouvrir http://localhost:5173"
     echo "   Se connecter et cliquer sur '🔮 L'Oracle (AI)'"
     echo ""
-    echo "📚 Documentation complète: docs/ORACLE_QUICK_START.md"
+    echo "📚 Documentation complète: docs/ORACLE_AI_MODULE.md"
     exit 0
 else
     echo -e "${RED}❌ Certains fichiers sont manquants${NC}"
